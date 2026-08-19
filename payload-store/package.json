@@ -1,0 +1,13 @@
+{
+  "name": "payload-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Off-ledger payload custody for the Track A prototype",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.2"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "scenario": "S3",
+  "asset": "LOT-E",
+  "policyHistory": [
+    {
+      "version": "v1.0",
+      "hash": "aaf3673cce9034ff14bfd28982d4149012243e590223af47f2210023d6889788",
+      "effectiveFrom": "2026-07-20T08:00:00Z",
+      "anchoredBy": "Org1MSP",
+      "anchoredAt": "2026-07-20T08:00:05Z"
+    },
+    {
+      "version": "v2.0",
+      "hash": "f65b7a6422ad452f0de24b18fef98ba5aba8bfcdc8605a60f185cc91d866adb2",
+      "effectiveFrom": "2026-07-20T09:14:02Z",
+      "anchoredBy": "Org1MSP",
+      "anchoredAt": "2026-07-20T09:14:00Z"
+    }
+  ],
+  "bindings": [
+    {
+      "record": "S3-R1",
+      "eventType": "Create",
+      "submittedAt": "2026-07-20T09:07:11Z",
+      "boundPolicyVersion": "v1.0",
+      "boundPolicyHash": "aaf3673cce9034ff14bfd28982d4149012243e590223af47f2210023d6889788",
+      "expectedPolicyVersion": "v1.0",
+      "bindingCorrect": true
+    },
+    {
+      "record": "S3-R2",
+      "eventType": "Verify",
+      "submittedAt": "2026-07-20T09:08:36Z",
+      "boundPolicyVersion": "v1.0",
+      "boundPolicyHash": "aaf3673cce9034ff14bfd28982d4149012243e590223af47f2210023d6889788",
+      "expectedPolicyVersion": "v1.0",
+      "bindingCorrect": true
+    },
+    {
+      "record": "S3-R3",
+      "eventType": "Verify",
+      "submittedAt": "2026-07-20T09:10:02Z",
+      "boundPolicyVersion": "v1.0",
+      "boundPolicyHash": "aaf3673cce9034ff14bfd28982d4149012243e590223af47f2210023d6889788",
+      "expectedPolicyVersion": "v1.0",
+      "bindingCorrect": true
+    },
+    {
+      "record": "S3-R4",
+      "eventType": "Verify",
+      "submittedAt": "2026-07-20T09:15:19Z",
+      "boundPolicyVersion": "v2.0",
+      "boundPolicyHash": "f65b7a6422ad452f0de24b18fef98ba5aba8bfcdc8605a60f185cc91d866adb2",
+      "expectedPolicyVersion": "v2.0",
+      "bindingCorrect": true
+    },
+    {
+      "record": "S3-R5",
+      "eventType": "Transfer",
+      "submittedAt": "2026-07-20T09:16:44Z",
+      "boundPolicyVersion": "v2.0",
+      "boundPolicyHash": "f65b7a6422ad452f0de24b18fef98ba5aba8bfcdc8605a60f185cc91d866adb2",
+      "expectedPolicyVersion": "v2.0",
+      "bindingCorrect": true
+    }
+  ],
+  "auditorRecomputation": [
+    {
+      "version": "v1.0",
+      "file": "policies/policy_v1.md",
+      "anchoredHash": "aaf3673cce9034ff14bfd28982d4149012243e590223af47f2210023d6889788",
+      "recomputedHash": "aaf3673cce9034ff14bfd28982d4149012243e590223af47f2210023d6889788",
+      "matches": true
+    },
+    {
+      "version": "v2.0",
+      "file": "policies/policy_v2.md",
+      "anchoredHash": "f65b7a6422ad452f0de24b18fef98ba5aba8bfcdc8605a60f185cc91d866adb2",
+      "recomputedHash": "f65b7a6422ad452f0de24b18fef98ba5aba8bfcdc8605a60f185cc91d866adb2",
+      "matches": true
+    }
+  ],
+  "verdict": {
+    "allBindingsCorrect": true,
+    "allHashesReproduce": true,
+    "versionsObserved": [
+      "v1.0",
+      "v2.0"
+    ]
+  },
+  "generatedAt": "2026-08-17T19:52:40.886Z"
+}

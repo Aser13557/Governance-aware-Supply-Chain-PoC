@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evidence Layer — Replay Console</title>
+<!--
+  fabric-poc / console/replay.html
+  ─────────────────────────────────────────────────────────────────────────
+  Replays the Track A scenarios (Paper 3) as an animated admission-pipeline
+  log: submit → checks → policy binding → anchored. Ships with embedded DEMO
+  data matching the canonical fixtures exactly (README §fixtures). Drop a
+  real results/replay.json onto the footer bar to replace the demo stream.
+
+  replay.json contract (emitted by scenarios/summarize.sh on Day 5):
+    { "generatedAt": "RFC3339",
+      "scenarios": { "S1":[beat...], "S2":[beat...], "S3":[beat...] } }
+  Beat kinds and fields = exactly the DEMO objects below; the demo data IS
+  the schema example. Log wording mirrors chaincode rejection messages
+  verbatim so paper artifacts and console output never diverge.
+  ─────────────────────────────────────────────────────────────────────────
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#141824; --panel:#1b2130; --panel2:#20283a; --line:#2a3348;
+    --ink:#c9d2e3; --dim:#8b94a8; --faint:#5c6478;
+    --gold:#d9a441; --gold2:#f0c574; --jade:#57c99b; --coral:#ff6b5e; --cyan:#6fb3d8;
+    --mono:'IBM Plex Mono', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+    --sans:'Space Grotesk', system-ui, -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+
+  /* ── header ─────────────────────────────────────────── */
+  header{
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+    padding:12px 18px 10px; border-bottom:1px solid var(--line);
+  }
+  .brand{line-height:1.15}
+  .brand h1{font-size:15px; font-weight:600; letter-spacing:.02em}
+  .brand small{font-size:10.5px; color:var(--dim); font-family:var(--mono)}
+  .tabs{display:flex; gap:6px; margin-left:auto}
+  .tab{
+    font-family:var(--mono); font-size:11.5px; color:var(--dim);
+    background:transparent; border:1px solid var(--line); border-radius:6px;
+    padding:5px 11px; cursor:pointer;
+  }
+  .tab:hover{color:var(--ink); border-color:var(--faint)}
+  .tab.on{color:var(--gold2); border-color:var(--gold); background:rgba(217,164,65,.08)}
+  .ctrls{display:flex; gap:6px; align-items:center}
+  .btn{
+    font-family:var(--mono); font-size:11.5px; color:var(--ink);
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:5px 10px; cursor:pointer;
+  }
+  .btn:hover{border-color:var(--faint)}
+  .btn:focus-visible,.tab:focus-visible{outline:2px solid var(--cyan); outline-offset:1px}
+  .badge{
+    font-family:var(--mono); font-size:10px; letter-spacing:.08em;
+    padding:3px 8px; border-radius:4px;
+    color:var(--bg); background:var(--dim);
+  }
+  .badge.real{background:var(--jade)}
+
+  /* ── main split ─────────────────────────────────────── */
+  main{flex:1; display:flex; min-height:0}
+  #log{
+    flex:1; overflow-y:auto; padding:14px 16px 40px 14px;
+    font-family:var(--mono); font-size:12.5px; line-height:1.45;
+  }
+
+  /* entry = one beat; the left border is the GOVERNANCE SPINE:
+     its color is the policy version active at that moment.        */
+  .entry{
+    border-left:3px solid var(--faint);
+    padding:7px 10px 7px 14px; margin-bottom:2px;
+  }
+  .entry.p0{border-left-color:#3a4258}          /* no policy in force  */
+  .entry.p1{border-left-color:var(--gold)}      /* v1.0 governs        */
+  .entry.p2{border-left-color:var(--gold2)}     /* v2.0 governs        */
+  .row{display:block; padding:1px 0; white-space:pre-wrap; word-break:break-word}
+  .t{color:var(--faint); margin-right:10px}
+  .hd{color:var(--ink); font-weight:500}
+  .chk{color:var(--dim); padding-left:26px}
+  .ok{color:var(--jade)}
+  .bad{color:var(--coral)}
+  .gov{color:var(--gold2)}
+  .qy{color:var(--cyan)}
+  .note{color:var(--dim); font-style:italic; padding-left:26px}
+  .seal{
+    display:inline-block; font-size:10.5px; color:var(--gold2);
+    border:1px solid var(--gold); border-radius:3px; padding:0 5px; margin-left:8px;
+    animation:stamp .18s ease-out;
+  }
+  .claim{
+    border-left:3px solid var(--cyan); background:rgba(111,179,216,.06);
+    padding:9px 12px; margin:10px 0 2px; color:var(--ink); font-size:12.5px;
+  }
+  .claim b{color:var(--cyan); font-weight:600}
+  @keyframes stamp{from{transform:scale(1.5); opacity:0}to{transform:scale(1); opacity:1}}
+  @media (prefers-reduced-motion: reduce){ .seal{animation:none} }
+
+  /* ── state rail ─────────────────────────────────────── */
+  aside{
+    width:300px; border-left:1px solid var(--line); background:var(--panel);
+    overflow-y:auto; padding:14px; flex-shrink:0;
+  }
+  aside h2{
+    font-size:10px; letter-spacing:.14em; color:var(--faint);
+    font-weight:600; margin:14px 0 7px; text-transform:uppercase;
+  }
+  aside h2:first-child{margin-top:0}
+  .polchip{
+    font-family:var(--mono); font-size:12.5px; padding:8px 10px;
+    border:1px solid var(--line); border-radius:6px; background:var(--panel2);
+    color:var(--dim);
+  }
+  .polchip.live{border-color:var(--gold); color:var(--gold2)}
+  .polchip .h{display:block; font-size:10.5px; color:var(--faint); margin-top:2px}
+  .counts{display:flex; gap:8px}
+  .count{
+    flex:1; background:var(--panel2); border:1px solid var(--line);
+    border-radius:6px; padding:7px 9px; font-family:var(--mono);
+  }
+  .count b{display:block; font-size:16px; font-weight:600}
+  .count span{font-size:9.5px; color:var(--faint); letter-spacing:.06em}
+  .count.j b{color:var(--jade)} .count.c b{color:var(--coral)}
+  table{width:100%; border-collapse:collapse; font-family:var(--mono); font-size:11px}
+  th{color:var(--faint); text-align:left; font-weight:500; padding:2px 4px;
+     border-bottom:1px solid var(--line); font-size:9.5px; letter-spacing:.06em}
+  td{padding:3px 4px; border-bottom:1px solid rgba(42,51,72,.5); color:var(--dim)}
+  td.a{color:var(--ink)} td.r{color:var(--coral); font-weight:500}
+  .claimcard{
+    border:1px solid var(--line); border-left:3px solid var(--cyan);
+    border-radius:6px; padding:9px 11px; font-size:12px; color:var(--dim);
+    line-height:1.5; background:var(--panel2);
+  }
+  .claimcard b{color:var(--ink); font-weight:500}
+
+  /* ── footer / drop zone ─────────────────────────────── */
+  footer{
+    border-top:1px solid var(--line); padding:8px 18px;
+    display:flex; align-items:center; gap:14px; font-size:11px; color:var(--faint);
+    font-family:var(--mono);
+  }
+  #drop{
+    border:1px dashed var(--faint); border-radius:6px; padding:5px 12px;
+    cursor:pointer; color:var(--dim);
+  }
+  #drop.over{border-color:var(--jade); color:var(--jade)}
+  footer .hint{margin-left:auto}
+  input[type=file]{display:none}
+
+  @media (max-width:760px){
+    main{flex-direction:column}
+    aside{width:100%; border-left:none; border-top:1px solid var(--line); max-height:38vh}
+    .tabs{margin-left:0}
+    footer .hint{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Evidence Layer · Replay Console</h1>
+    <small>governance-aware admission pipeline — Track A · Paper 3</small>
+  </div>
+  <nav class="tabs" aria-label="Scenarios">
+    <button class="tab on" data-s="S1">S1 · recall</button>
+    <button class="tab" data-s="S2">S2 · audit pack</button>
+    <button class="tab" data-s="S3">S3 · policy binding</button>
+  </nav>
+  <div class="ctrls">
+    <button class="btn" id="play" aria-label="Pause or resume">Pause</button>
+    <button class="btn" id="step">Step</button>
+    <button class="btn" id="speed">1×</button>
+    <button class="btn" id="restart">Replay</button>
+    <span class="badge" id="badge">DEMO DATA</span>
+  </div>
+</header>
+
+<main>
+  <section id="log" aria-live="polite" aria-label="Admission log"></section>
+  <aside>
+    <h2>Active policy</h2>
+    <div class="polchip" id="pol">— none anchored<span class="h">every submission will be rejected (totality)</span></div>
+    <h2>Ledger</h2>
+    <div class="counts">
+      <div class="count j"><b id="cA">0</b><span>ANCHORED</span></div>
+      <div class="count c"><b id="cR">0</b><span>REJECTED</span></div>
+    </div>
+    <h2>Assets</h2>
+    <table id="assets"><thead><tr><th>asset</th><th>custodian</th><th>recall</th></tr></thead><tbody></tbody></table>
+    <h2>What this run demonstrates</h2>
+    <div class="claimcard" id="claim"></div>
+  </aside>
+</main>
+
+<footer>
+  <label id="drop" for="file">Drop results/replay.json here — or click to load</label>
+  <input type="file" id="file" accept=".json,application/json">
+  <span id="src">embedded canonical fixtures</span>
+  <span class="hint">space = pause · → = step</span>
+</footer>
+
+<script>
+/* ── truncated display hashes (demo) ───────────────────────────────── */
+const H = {
+  pol1:'3f8a12\u20269c21d', pol2:'b7e04d\u202644af0',
+  C1:'a41f09\u20267c8e2', C2:'5d2c7b\u2026e91a4', T1:'c8b3e6\u20261f0d7',
+  TR1:'92ad40\u2026b6c15', V1:'e07f5a\u20263d9b8', R1:'6b19c3\u2026a24fe',
+  D1:'7e33a1\u2026c05d9', TD1:'184fb7\u20265e6a0', VD1:'f5a92c\u20260b7d3', TD2:'2c6e18\u2026d94af',
+  E1:'8d05f4\u20261a7c6', E2:'3b7a9e\u2026f28d1', E3:'c14d68\u20267b3e9', E4:'90e2b5\u20264c8f7', E5:'6f8c30\u2026e15b2'
+};
+
+/* ── DEMO beats — this structure IS the replay.json schema ─────────── */
+const DEMO = {
+S1:[
+ {kind:'info', text:'Scenario S1 — recall investigation, lot LOT-C. Six events, five logical organizations, four source systems. Artifacts: results/S1_*'},
+ {kind:'reject', id:'C1', type:'Create', asset:'LOT-A', actor:'Producer', source:'ERP',
+  checks:[['schema','ok'],['payload hash '+H.C1,'ok']],
+  err:'INVARIANT VIOLATION [totality]: no governance policy is active at submission time 2026-07-20T08:59:41Z; every accepted header must bind exactly one policy hash'},
+ {kind:'gov', v:'v1.0', hash:H.pol1, ef:'2026-07-20T09:00:00Z',
+  note:'registry ordering \u2713 \u00b7 anchored by Org1MSP (consortium admin)'},
+ {kind:'submit', id:'C1', type:'Create', asset:'LOT-A', actor:'Producer', source:'ERP', preds:[],
+  checks:[['schema','ok'],['payload hash '+H.C1,'ok'],['asset LOT-A is new','ok']],
+  bind:'v1.0', after:'lot LOT-A registered \u00b7 custodian Producer',
+  fx:{asset:['LOT-A','Producer',false]}},
+ {kind:'submit', id:'C2', type:'Create', asset:'LOT-B', actor:'Producer', source:'ERP', preds:[],
+  checks:[['schema','ok'],['payload hash '+H.C2,'ok'],['asset LOT-B is new','ok']],
+  bind:'v1.0', after:'lot LOT-B registered \u00b7 custodian Producer',
+  fx:{asset:['LOT-B','Producer',false]}},
+ {kind:'submit', id:'T1', type:'Transform', asset:'LOT-C', actor:'Processor', source:'MES', preds:['C1','C2'],
+  checks:[['schema \u00b7 predecessors {C1, C2}','ok'],
+          ['quantity conservation \u2713 inputs 600.0000 + 400.0000 = outputs 1000.0000 (tolerance 0.5)','ok']],
+  bind:'v1.0', after:'LOT-C derived from LOT-A + LOT-B \u00b7 custodian Processor',
+  fx:{asset:['LOT-C','Processor',false]}},
+ {kind:'submit', id:'TR1', type:'Transfer', asset:'LOT-C', actor:'Processor', source:'TMS/WMS', preds:['T1'],
+  checks:[['schema \u00b7 predecessors {T1}','ok'],
+          ['custody continuity \u2713 submitter = current custodian (Processor)','ok'],
+          ['recall lock \u2713 no active recall on LOT-C','ok']],
+  bind:'v1.0', after:'custody \u2192 Carrier',
+  fx:{asset:['LOT-C','Carrier',false]}},
+ {kind:'submit', id:'V1', type:'Verify', asset:'LOT-C', actor:'Laboratory', source:'LIMS', preds:['TR1'],
+  checks:[['schema \u00b7 predecessors {TR1}','ok'],
+          ['verification integrity \u2713 attestation payload '+H.V1,'ok']],
+  bind:'v1.0', after:'attestation linked to LOT-C'},
+ {kind:'reject', id:'TR-X', type:'Transfer', asset:'LOT-C', actor:'Retailer', source:'TMS/WMS',
+  checks:[['schema \u00b7 predecessors','ok']],
+  err:'INVARIANT VIOLATION [custody continuity]: Transfer of asset "LOT-C" submitted by "Retailer", but current custodian is "Carrier" \u2014 only the current custodian may record a transfer'},
+ {kind:'submit', id:'R1', type:'Recall', asset:'LOT-C', actor:'Retailer', source:'Retailer system', preds:['V1'],
+  checks:[['schema \u00b7 predecessors {V1}','ok'],['payload: recall authorization '+H.R1,'ok']],
+  bind:'v1.0', after:'RECALL LOCK SET \u00b7 further transfers of LOT-C blocked',
+  fx:{asset:['LOT-C','Carrier',true]}},
+ {kind:'reject', id:'TR2', type:'Transfer', asset:'LOT-C', actor:'Carrier', source:'TMS/WMS',
+  checks:[['schema \u00b7 predecessors','ok'],
+          ['custody continuity \u2713 submitter = current custodian (Carrier)','ok']],
+  err:'INVARIANT VIOLATION [recall lock]: asset "LOT-C" is under recall; further transfers are blocked until the recall is cleared'},
+ {kind:'query', label:'GetLineageByAsset("LOT-C")',
+  lines:['nodes 6 \u00b7 edges 5 \u00b7 originCreates [C1, C2]',
+         'backward trace to origin: LOT-C \u21e0 T1 \u21e0 { C1 (LOT-A), C2 (LOT-B) }',
+         'forward closure: descendants of C1/C2 \u2192 {T1, TR1, V1, R1} \u2014 all recall-relevant events located']},
+ {kind:'claim', text:'<b>Source-system agnosticism, executed.</b> Four different enterprise systems fed this chain \u2014 ERP, MES, TMS/WMS, LIMS \u2014 and every event walked the identical validation path. The chaincode contains zero source-system branches; the adapters absorbed all heterogeneity.'}
+],
+S2:[
+ {kind:'info', text:'Scenario S2 — regulatory audit of lot LOT-D (four-event lineage, no recall). Artifacts: results/S2_*'},
+ {kind:'submit', id:'D1', type:'Create', asset:'LOT-D', actor:'Producer', source:'ERP', preds:[],
+  checks:[['schema \u00b7 payload hash '+H.D1,'ok'],['asset LOT-D is new','ok']],
+  bind:'v1.0', after:'lot LOT-D registered \u00b7 custodian Producer',
+  fx:{asset:['LOT-D','Producer',false]}},
+ {kind:'submit', id:'TD1', type:'Transfer', asset:'LOT-D', actor:'Producer', source:'TMS', preds:['D1'],
+  checks:[['custody continuity \u2713 submitter = current custodian (Producer)','ok']],
+  bind:'v1.0', after:'custody \u2192 Distributor', fx:{asset:['LOT-D','Distributor',false]}},
+ {kind:'submit', id:'VD1', type:'Verify', asset:'LOT-D', actor:'Laboratory', source:'LIMS', preds:['TD1'],
+  checks:[['verification integrity \u2713 attestation payload '+H.VD1,'ok']],
+  bind:'v1.0', after:'certificate linked to LOT-D'},
+ {kind:'submit', id:'TD2', type:'Transfer', asset:'LOT-D', actor:'Distributor', source:'TMS', preds:['VD1'],
+  checks:[['custody continuity \u2713 submitter = current custodian (Distributor)','ok']],
+  bind:'v1.0', after:'custody \u2192 Retailer', fx:{asset:['LOT-D','Retailer',false]}},
+ {kind:'query', label:'auditPack("LOT-D", role=authority)',
+  lines:['scope LOT-D \u00b7 4 ordered headers [D1 \u2192 TD1 \u2192 VD1 \u2192 TD2]',
+         'per-event policy refs: v1.0 \u00d74 \u00b7 hash '+H.pol1,
+         'payload verification against off-ledger store: 4/4 PASS',
+         'generated in 213 ms \u2192 results/S2_auditpack.json']},
+ {kind:'query', label:'passportView("LOT-D")',
+  lines:['custodian Retailer \u00b7 last transfer TD2 \u00b7 attestations [VD1] \u00b7 recall: none \u00b7 policy v1.0']},
+ {kind:'tamper',
+  lines:[['operator flips one byte of VD1\u2019s stored payload, then re-verifies the pack','note'],
+         ['hash check VD1: recomputed 09ab44\u2026e1c07 \u2260 anchored '+H.VD1+' \u2014 verification FAIL','bad'],
+         ['tamper detected from anchored evidence alone \u2713 (off-ledger integrity, R3)','ok']]},
+ {kind:'claim', text:'<b>Fragmentation, solved on screen.</b> One command assembled a regulator-ready, hash-verified evidence bundle in ~0.2 s \u2014 and when a payload was silently modified, the anchored hashes exposed it. Proof without disclosure: the authority verified everything while confidential payloads stayed off-ledger.'}
+],
+S3:[
+ {kind:'info', text:'Scenario S3 — governance policy update with per-record binding, lot LOT-E. The thesis mechanism under direct test. Artifacts: results/S3_table4_bindings.json'},
+ {kind:'submit', id:'S3-R1', type:'Create', asset:'LOT-E', actor:'Producer', source:'ERP', preds:[],
+  checks:[['schema \u00b7 payload hash '+H.E1,'ok']], bind:'v1.0',
+  after:'lot LOT-E registered', fx:{asset:['LOT-E','Producer',false]}},
+ {kind:'submit', id:'S3-R2', type:'Verify', asset:'LOT-E', actor:'Laboratory', source:'LIMS', preds:['S3-R1'],
+  checks:[['verification integrity \u2713 '+H.E2,'ok']], bind:'v1.0'},
+ {kind:'submit', id:'S3-R3', type:'Verify', asset:'LOT-E', actor:'Laboratory', source:'LIMS', preds:['S3-R2'],
+  checks:[['verification integrity \u2713 '+H.E3,'ok']], bind:'v1.0'},
+ {kind:'gov', v:'v2.0', hash:H.pol2, ef:'2026-07-20T09:14:02Z',
+  note:'registry ordering \u2713 \u00b7 supersession is prospective \u2014 bindings of S3-R1..R3 remain untouched (immutability)'},
+ {kind:'submit', id:'S3-R4', type:'Verify', asset:'LOT-E', actor:'Laboratory', source:'LIMS', preds:['S3-R3'],
+  checks:[['verification integrity \u2713 '+H.E4,'ok']], bind:'v2.0'},
+ {kind:'submit', id:'S3-R5', type:'Transfer', asset:'LOT-E', actor:'Producer', source:'TMS', preds:['S3-R4'],
+  checks:[['custody continuity \u2713 submitter = current custodian (Producer)','ok']],
+  bind:'v2.0', after:'custody \u2192 Warehouse', fx:{asset:['LOT-E','Warehouse',false]}},
+ {kind:'query', label:'per-record binding verification (draft Table 4)',
+  lines:['S3-R1 \u00b7 boundAt 09:07:11Z \u00b7 v1.0 \u00b7 '+H.pol1+' \u00b7 correct \u2713',
+         'S3-R2 \u00b7 boundAt 09:08:36Z \u00b7 v1.0 \u00b7 '+H.pol1+' \u00b7 correct \u2713',
+         'S3-R3 \u00b7 boundAt 09:10:02Z \u00b7 v1.0 \u00b7 '+H.pol1+' \u00b7 correct \u2713',
+         'S3-R4 \u00b7 boundAt 09:15:19Z \u00b7 v2.0 \u00b7 '+H.pol2+' \u00b7 correct \u2713',
+         'S3-R5 \u00b7 boundAt 09:16:44Z \u00b7 v2.0 \u00b7 '+H.pol2+' \u00b7 correct \u2713']},
+ {kind:'query', label:'auditor recompute \u00b7 PolicyHistory()',
+  lines:['retrieve policy_v1.md \u2192 sha256 = '+H.pol1+' \u2713 matches anchor',
+         'retrieve policy_v2.md \u2192 sha256 = '+H.pol2+' \u2713 matches anchor',
+         'verifiability invariant holds: any auditor can prove which ruleset governed each record']},
+ {kind:'claim', text:'<b>The central mechanism, running.</b> The rulebook changed mid-stream \u2014 and afterwards every record still proves exactly which policy version governed its admission. Governance became a verifiable property of the evidence itself, not an ambient platform condition. This is policy-hash anchoring: totality, immutability, verifiability, on screen.'}
+]
+};
+
+const CLAIMS = {
+ S1:'Watch for: <b>identical treatment of four source systems</b>, lineage reconstruction to origin, and two red rejections \u2014 custody continuity, then recall lock.',
+ S2:'Watch for: <b>one command \u2192 complete audit pack</b> with per-event policy refs and 4/4 hash verification \u2014 then a deliberate tamper being caught.',
+ S3:'Watch for: <b>the spine changing shade</b> when policy v2.0 anchors \u2014 and every record afterwards proving which version governed it.'
+};
+
+/* ── playback engine ───────────────────────────────────────────────── */
+let DATA = DEMO, cur='S1', queue=[], qi=0, playing=true, speed=1, timer=null;
+const POLHASH = {};   // version -> hash, learned from gov beats (real or demo)
+const polHash = v => POLHASH[v] || (v==='v2.0'?H.pol2:H.pol1);
+const clockStart = Date.parse('2026-07-20T08:59:41Z'); let clock=0;
+const state = {pol:null, a:0, r:0, assets:{}};
+const $ = s=>document.querySelector(s);
+const log=$('#log');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function ts(){ clock += 7000 + Math.floor(Math.random()*40000);
+  return new Date(clockStart+clock).toISOString().slice(11,19)+'Z'; }
+function spine(){ return state.pol==='v2.0'?'p2':state.pol==='v1.0'?'p1':'p0'; }
+
+function entry(){ const d=document.createElement('div'); d.className='entry '+spine(); log.appendChild(d); return d; }
+function line(box, html, cls){ const r=document.createElement('span'); r.className='row '+(cls||'');
+  r.innerHTML=html; box.appendChild(r); log.scrollTop=log.scrollHeight; }
+
+function railify(){
+  $('#cA').textContent=state.a; $('#cR').textContent=state.r;
+  const p=$('#pol');
+  if(!state.pol){ p.className='polchip'; p.innerHTML='\u2014 none anchored<span class="h">every submission will be rejected (totality)</span>'; }
+  else { p.className='polchip live';
+    p.innerHTML='\u27d0 '+state.pol+' in force<span class="h">hash '+polHash(state.pol)+'</span>'; }
+  const tb=$('#assets tbody'); tb.innerHTML='';
+  Object.entries(state.assets).forEach(([id,[c,rec]])=>{
+    tb.insertAdjacentHTML('beforeend',
+      '<tr><td class="a">'+id+'</td><td>'+c+'</td><td class="'+(rec?'r':'')+'">'+(rec?'LOCKED':'\u2014')+'</td></tr>');
+  });
+}
+
+/* expand one beat into an array of steps: {run:fn, w:delayWeight} */
+function expand(b){
+  const S=[];
+  if(b.kind==='info'){ S.push({w:2, run(){ const e=entry(); line(e,'<span class="t">'+ts()+'</span><span class="note" style="padding-left:0">'+b.text+'</span>'); }}); return S; }
+  if(b.kind==='claim'){ S.push({w:4, run(){ const d=document.createElement('div'); d.className='claim'; d.innerHTML=b.text; log.appendChild(d); log.scrollTop=log.scrollHeight; }}); return S; }
+  if(b.kind==='gov'){
+    S.push({w:3, run(){ b._e=entry();
+      line(b._e,'<span class="t">'+ts()+'</span><span class="gov">\u27d0 GOVERNANCE \u00b7 AnchorPolicy '+b.v+' \u00b7 hash '+b.hash+' \u00b7 effectiveFrom '+b.ef+'</span>'); }});
+    S.push({w:2, run(){ line(b._e, b.note,'chk'); }});
+    S.push({w:2, run(){ state.pol=b.v; POLHASH[b.v]=b.hash; b._e.className='entry '+spine();
+      line(b._e,'ACTIVE POLICY \u2192 '+b.v,'chk gov'); railify(); }});
+    return S;
+  }
+  if(b.kind==='submit'||b.kind==='reject'){
+    S.push({w:3, run(){ b._e=entry();
+      line(b._e,'<span class="t">'+ts()+'</span><span class="hd">\u25b8 submit \u00b7 '+b.id+' \u00b7 '+b.type+' \u00b7 '+b.asset+' \u00b7 actor '+b.actor+' \u00b7 source '+b.source+(b.preds&&b.preds.length?' \u00b7 preds {'+b.preds.join(', ')+'}':'')+'</span>'); }});
+    (b.checks||[]).forEach(c=>S.push({w:1.4, run(){ line(b._e, c[0]+(c[1]==='ok'?' <span class="ok">\u2713</span>':''),'chk'); }}));
+    if(b.kind==='reject'){
+      S.push({w:3, run(){ line(b._e,'\u2715 '+b.err,'chk bad'); }});
+      S.push({w:2, run(){ line(b._e,'REJECTED \u00b7 nothing written to ledger','chk bad'); state.r++; railify(); }});
+    } else {
+      S.push({w:2, run(){ line(b._e,'policy binding \u2192 active(t) = '+b.bind+' \u00b7 hash '+(b.bindHash||polHash(b.bind)),'chk gov'); }});
+      S.push({w:2.4, run(){
+        line(b._e,'<span class="ok">ANCHORED</span> \u00b7 header immutable'+(b.after?' \u00b7 '+b.after:'')+'<span class="seal">\u27d0 '+b.bind+'</span>','chk');
+        state.a++; if(b.fx&&b.fx.asset){ const [id,c,rec]=b.fx.asset; state.assets[id]=[c,rec]; } railify(); }});
+    }
+    return S;
+  }
+  if(b.kind==='query'){
+    S.push({w:3, run(){ b._e=entry(); line(b._e,'<span class="t">'+ts()+'</span><span class="qy">\u25c8 '+b.label+'</span>'); }});
+    b.lines.forEach(l=>S.push({w:1.6, run(){ line(b._e,l,'chk qy'); }}));
+    return S;
+  }
+  if(b.kind==='tamper'){
+    S.push({w:3, run(){ b._e=entry(); line(b._e,'<span class="t">'+ts()+'</span><span class="hd">\u25b8 tamper test (E3)</span>'); }});
+    b.lines.forEach(l=>S.push({w:2, run(){ line(b._e,l[0],'chk '+l[1]); }}));
+    return S;
+  }
+  return S;
+}
+
+function build(){
+  queue=[]; qi=0; clock=0;
+  Object.keys(POLHASH).forEach(k=>delete POLHASH[k]);
+  state.pol=null; state.a=0; state.r=0; state.assets={};
+  log.innerHTML=''; railify();
+  $('#claim').innerHTML=CLAIMS[cur]||'';
+  (DATA[cur]||[]).forEach(b=>{ delete b._e; queue=queue.concat(expand(b)); });
+}
+function tick(){
+  if(!playing||qi>=queue.length) return;
+  const st=queue[qi++]; st.run();
+  if(qi<queue.length){ const d = reduced?0 : st.w*260/speed; timer=setTimeout(tick,d); }
+}
+function start(){ clearTimeout(timer); build(); playing=true; $('#play').textContent='Pause'; tick(); }
+
+/* ── controls ──────────────────────────────────────────────────────── */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); cur=t.dataset.s; start();
+}));
+$('#restart').addEventListener('click',start);
+$('#play').addEventListener('click',()=>{
+  playing=!playing; $('#play').textContent=playing?'Pause':'Resume';
+  if(playing) tick(); else clearTimeout(timer);
+});
+$('#step').addEventListener('click',()=>{
+  playing=false; $('#play').textContent='Resume'; clearTimeout(timer);
+  if(qi<queue.length) queue[qi++].run();
+});
+$('#speed').addEventListener('click',()=>{
+  speed = speed===1?2:speed===2?4:1; $('#speed').textContent=speed+'\u00d7';
+});
+addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.code==='Space'){ e.preventDefault(); $('#play').click(); }
+  if(e.code==='ArrowRight'){ e.preventDefault(); $('#step').click(); }
+});
+
+/* ── real-data loading: results/replay.json ────────────────────────── */
+const drop=$('#drop'), file=$('#file');
+function loadText(txt,name){
+  try{
+    const j=JSON.parse(txt);
+    if(!j.scenarios||!(j.scenarios.S1||j.scenarios.S2||j.scenarios.S3))
+      throw new Error('missing "scenarios" with S1/S2/S3');
+    DATA={S1:j.scenarios.S1||[],S2:j.scenarios.S2||[],S3:j.scenarios.S3||[]};
+    $('#badge').textContent='REAL DATA'; $('#badge').classList.add('real');
+    $('#src').textContent=name+(j.generatedAt?' \u00b7 '+j.generatedAt:'');
+    start();
+  }catch(err){
+    const e=entry(); line(e,'\u2715 could not load '+name+': '+err.message+' \u2014 expected {scenarios:{S1:[\u2026],S2:[\u2026],S3:[\u2026]}} (see file header for the beat schema)','bad');
+  }
+}
+function handle(f){ if(!f) return; const r=new FileReader();
+  r.onload=()=>loadText(r.result,f.name); r.readAsText(f); }
+file.addEventListener('change',()=>handle(file.files[0]));
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',e=>handle(e.dataTransfer.files[0]));
+
+start();
+</script>
+</body>
+</html>
