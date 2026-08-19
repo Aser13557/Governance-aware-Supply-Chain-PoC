@@ -1,0 +1,119 @@
+name: Track A — prototype run
+
+# Executes the complete Track A scenario suite (S0–S3) on a clean Ubuntu
+# runner and publishes results/ as a downloadable artifact. The run log is the
+# reproducibility evidence cited in Гл. 5: every artifact in the dissertation
+# can be regenerated from a fresh environment with no local state.
+#
+# Trigger it from the Actions tab ("Run workflow"), or on every push.
+
+on:
+  workflow_dispatch:
+    inputs:
+      fabric_version:
+        description: 'Hyperledger Fabric version'
+        default: '2.5.9'
+        type: string
+  push:
+    branches: [main, master]
+    paths-ignore: ['**.md', 'console/**', 'docs/**']
+
+permissions:
+  contents: read
+
+jobs:
+  prototype:
+    name: Fabric 2.5 · scenarios S0–S3
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify Docker
+        run: |
+          docker version
+          docker compose version
+          echo "runner: $(nproc) cores, $(free -g | awk '/^Mem:/{print $2}') GB RAM"
+
+      - name: Install Fabric ${{ inputs.fabric_version || '2.5.9' }} binaries and images
+        run: |
+          cd "$HOME"
+          curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh
+          chmod +x install-fabric.sh
+          ./install-fabric.sh --fabric-version "${{ inputs.fabric_version || '2.5.9' }}" \
+                              --ca-version 1.5.13 docker samples binary
+          "$HOME/fabric-samples/bin/peer" version
+
+      - name: Compile chaincode
+        working-directory: chaincode/evidence
+        run: |
+          go mod tidy
+          go vet ./...
+          go build ./...
+          go mod vendor
+          echo "chaincode compiles · dependencies vendored"
+
+      - name: Run full scenario suite
+        env:
+          FABRIC_SAMPLES: /home/runner/fabric-samples
+        run: |
+          mkdir -p results
+          chmod +x run-all.sh scenarios/*.sh setup/*.sh
+          set -o pipefail
+          ./run-all.sh 2>&1 | tee results/run.log
+
+      - name: Assert every required artifact was produced
+        run: node tools/check_artifacts.js
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: track-a-results-${{ github.run_number }}
+          path: |
+            results/
+            !results/events/**
+          retention-days: 90
+
+      - name: Upload full event set
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: track-a-events-${{ github.run_number }}
+          path: results/events/
+          retention-days: 90
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Track A run #${{ github.run_number }}"
+            echo ""
+            echo "Fabric ${{ inputs.fabric_version || '2.5.9' }} · runner \`ubuntu-latest\` · commit \`${GITHUB_SHA:0:7}\`"
+            echo ""
+            if [ -f results/feasibility_summary.md ]; then
+              sed -n '/## §6.4 sentence stems, filled/,/^## /p' results/feasibility_summary.md | head -40
+            else
+              echo "⚠️ run did not complete — see the job log"
+            fi
+            echo ""
+            echo "Download \`track-a-results-${{ github.run_number }}\` from the Artifacts section above."
+            echo "Drop \`replay.json\` onto \`console/replay.html\` to replay this run."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Tear down network
+        if: always()
+        run: ./run-all.sh --down || true
