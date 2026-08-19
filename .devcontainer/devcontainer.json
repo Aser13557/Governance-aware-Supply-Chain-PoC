@@ -1,0 +1,21 @@
+{
+  "name": "Track A — Fabric 2.5 prototype",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": { "version": "latest", "dockerDashComposeVersion": "v2" },
+    "ghcr.io/devcontainers/features/go:1": { "version": "1.21" },
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" }
+  },
+  "hostRequirements": { "cpus": 4, "memory": "8gb", "storage": "32gb" },
+  "onCreateCommand": "sudo apt-get update -qq && sudo apt-get install -y -qq jq curl && bash .devcontainer/install-fabric.sh",
+  "postAttachCommand": "echo '\\nReady. Run:  ./run-all.sh\\n'",
+  "customizations": {
+    "vscode": {
+      "extensions": ["golang.go", "dbaeumer.vscode-eslint", "redhat.vscode-yaml"],
+      "settings": { "terminal.integrated.defaultProfile.linux": "bash" }
+    }
+  },
+  "forwardPorts": [4000],
+  "portsAttributes": { "4000": { "label": "payload-store", "onAutoForward": "silent" } },
+  "remoteEnv": { "FABRIC_SAMPLES": "/home/vscode/fabric-samples" }
+}
