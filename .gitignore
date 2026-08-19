@@ -1,0 +1,8 @@
+node_modules/
+chaincode/evidence/vendor/
+chaincode/evidence/go.sum
+payload-store/data/
+results/*
+!results/.gitkeep
+*.log
+.DS_Store
