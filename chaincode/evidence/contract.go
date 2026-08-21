@@ -393,7 +393,7 @@ func (c *EvidenceContract) CreateHeader(ctx contractapi.TransactionContextInterf
 			return nil, fmt.Errorf("INVARIANT VIOLATION [recall lock]: asset %q is under recall; further transfers are blocked until the recall is cleared", h.AssetID)
 		}
 		if a.CurrentCustodian != h.ActorOrg {
-			return nil, fmt.Errorf("INVARIANT VIOLATION [custody continuity]: Transfer of asset %q submitted by %q, but current custodian is %q — only the current custodian may record a transfer", h.AssetID, h.ActorOrg, a.CurrentCustodian)
+			return nil, fmt.Errorf("INVARIANT VIOLATION [custody continuity]: Transfer of asset %q submitted by %q, but current custodian is %q; only the current custodian may record a transfer", h.AssetID, h.ActorOrg, a.CurrentCustodian)
 		}
 		if strings.TrimSpace(h.NewCustodian) == "" {
 			return nil, fmt.Errorf("REJECTED [schema]: Transfer requires field \"newCustodian\"")
