@@ -155,7 +155,13 @@ submit_event(){
     # Always keep the raw peer output — if the failure is infrastructural
     # rather than a chaincode rejection, this is the only record of it.
     printf '%s\n' "$out" > "${RESULTS}/rejections/${id}.raw.txt"
-    msg=$(grab_first '(INVARIANT VIOLATION|REJECTED|GOVERNANCE REJECTION) \[[^]]+\][^"]*' "$out")
+    # Match to end of line, not up to the first quote: chaincode messages embed
+    # asset IDs via Go's %q, which peer escapes as \" — a [^"]* pattern truncates
+    # the message at the first backslash, exactly where the substance begins.
+    msg=$(grab_first '(INVARIANT VIOLATION|REJECTED|GOVERNANCE REJECTION) \[[^]]+\].*' "$out")
+    msg="${msg%"${msg##*[![:space:]]}"}"   # trim trailing whitespace
+    msg="${msg%\"}"                        # drop peer's closing quote
+    msg="${msg//\\\"/\"}"                  # unescape embedded quotes
     [ -z "$msg" ] && msg="$out"
     printf '%s\n' "$msg" > "${RESULTS}/rejections/${id}.txt"
     if [ -n "$expect" ]; then
