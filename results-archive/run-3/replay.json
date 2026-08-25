@@ -1,0 +1,583 @@
+{
+  "generatedAt": "2026-08-21T15:30:45.069Z",
+  "source": "Track A prototype run",
+  "scenarios": {
+    "S1": [
+      {
+        "kind": "info",
+        "text": "Scenario S1 — recall investigation, lot LOT-C. Six events, five logical organizations, four source systems."
+      },
+      {
+        "kind": "reject",
+        "id": "C1",
+        "type": "Create",
+        "asset": "LOT-A",
+        "actor": "Producer",
+        "source": "ERP",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [totality]: no governance policy is active at submission time 2026-08-21T15:29:46Z; every accepted header must bind exactly one policy hash"
+      },
+      {
+        "kind": "submit",
+        "id": "C1",
+        "type": "Create",
+        "asset": "LOT-A",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "payload hash 9bd30e…44258 ✓ · asset LOT-A is new",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "lot LOT-A registered · custodian Producer",
+        "fx": {
+          "asset": [
+            "LOT-A",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "C2",
+        "type": "Create",
+        "asset": "LOT-B",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "payload hash 6c4168…37392 ✓ · asset LOT-B is new",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "lot LOT-B registered · custodian Producer",
+        "fx": {
+          "asset": [
+            "LOT-B",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "T1",
+        "type": "Transform",
+        "asset": "LOT-C",
+        "actor": "Processor",
+        "source": "MES",
+        "preds": [
+          "C1",
+          "C2"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {C1, C2}",
+            "ok"
+          ],
+          [
+            "quantity conservation ✓ inputs 1000.0000 = outputs 1000.0000 (tolerance 0.5)",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "LOT-C derived from LOT-A + LOT-B · custodian Processor",
+        "fx": {
+          "asset": [
+            "LOT-C",
+            "Processor",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "TR1",
+        "type": "Transfer",
+        "asset": "LOT-C",
+        "actor": "Processor",
+        "source": "TMS/WMS",
+        "preds": [
+          "T1"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {T1}",
+            "ok"
+          ],
+          [
+            "custody continuity ✓ submitter = current custodian (Processor)",
+            "ok"
+          ],
+          [
+            "recall lock ✓ no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "custody → Carrier",
+        "fx": {
+          "asset": [
+            "LOT-C",
+            "Carrier",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "V1",
+        "type": "Verify",
+        "asset": "LOT-C",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "TR1"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {TR1}",
+            "ok"
+          ],
+          [
+            "verification integrity ✓ attestation payload 7c9538…6dbdd",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "attestation linked to LOT-C"
+      },
+      {
+        "kind": "reject",
+        "id": "TR-X",
+        "type": "Transfer",
+        "asset": "LOT-C",
+        "actor": "Retailer",
+        "source": "TMS/WMS",
+        "checks": [
+          [
+            "schema · predecessors",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [custody continuity]: Transfer of asset \"LOT-C\" submitted by \"Retailer\", but current custodian is \"Carrier\"; only the current custodian may record a transfer"
+      },
+      {
+        "kind": "submit",
+        "id": "R1",
+        "type": "Recall",
+        "asset": "LOT-C",
+        "actor": "Retailer",
+        "source": "Retailer system",
+        "preds": [
+          "V1"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {V1}",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "RECALL LOCK SET · further transfers of LOT-C blocked",
+        "fx": {
+          "asset": [
+            "LOT-C",
+            "Carrier",
+            true
+          ]
+        }
+      },
+      {
+        "kind": "reject",
+        "id": "TR2",
+        "type": "Transfer",
+        "asset": "LOT-C",
+        "actor": "Carrier",
+        "source": "TMS/WMS",
+        "checks": [
+          [
+            "schema · predecessors",
+            "ok"
+          ],
+          [
+            "custody continuity ✓ submitter = current custodian (Carrier)",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [recall lock]: asset \"LOT-C\" is under recall; further transfers are blocked until the recall is cleared"
+      },
+      {
+        "kind": "query",
+        "label": "GetLineageByAsset(\"LOT-C\")",
+        "lines": [
+          "nodes 6 · edges 5 · originCreates [C1, C2]",
+          "backward trace to origin: LOT-C ⇠ T1 ⇠ { C1, C2 }",
+          "forward closure: C1 → C2 → T1 → TR1 → V1 → R1"
+        ]
+      },
+      {
+        "kind": "claim",
+        "text": "<b>Source-system agnosticism, executed.</b> Four enterprise systems fed this chain — ERP, MES, TMS/WMS, LIMS — and every event walked the identical validation path. The chaincode contains zero source-system branches."
+      }
+    ],
+    "S2": [
+      {
+        "kind": "info",
+        "text": "Scenario S2 — regulatory audit of lot LOT-D (four-event lineage, no recall)."
+      },
+      {
+        "kind": "submit",
+        "id": "D1",
+        "type": "Create",
+        "asset": "LOT-D",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "payload hash 31bd11…af945 ✓ · asset LOT-D is new",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "lot LOT-D registered · custodian Producer",
+        "fx": {
+          "asset": [
+            "LOT-D",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "TD1",
+        "type": "Transfer",
+        "asset": "LOT-D",
+        "actor": "Producer",
+        "source": "TMS",
+        "preds": [
+          "D1"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {D1}",
+            "ok"
+          ],
+          [
+            "custody continuity ✓ submitter = current custodian (Producer)",
+            "ok"
+          ],
+          [
+            "recall lock ✓ no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "custody → Distributor",
+        "fx": {
+          "asset": [
+            "LOT-D",
+            "Distributor",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "VD1",
+        "type": "Verify",
+        "asset": "LOT-D",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "TD1"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {TD1}",
+            "ok"
+          ],
+          [
+            "verification integrity ✓ attestation payload 6e6f63…48571",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "certificate linked to LOT-D"
+      },
+      {
+        "kind": "submit",
+        "id": "TD2",
+        "type": "Transfer",
+        "asset": "LOT-D",
+        "actor": "Distributor",
+        "source": "TMS",
+        "preds": [
+          "VD1"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {VD1}",
+            "ok"
+          ],
+          [
+            "custody continuity ✓ submitter = current custodian (Distributor)",
+            "ok"
+          ],
+          [
+            "recall lock ✓ no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "custody → Retailer",
+        "fx": {
+          "asset": [
+            "LOT-D",
+            "Retailer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "query",
+        "label": "auditPack(\"LOT-D\", role=authority)",
+        "lines": [
+          "scope LOT-D · 4 ordered headers [D1 → TD1 → VD1 → TD2]",
+          "per-event policy refs: v1.0 · hash aaf367…89788",
+          "payload verification against off-ledger store: 4/4 PASS",
+          "generated in 377 ms → results/S2_auditpack.json"
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "passportView(\"LOT-D\")",
+        "lines": [
+          "custodian Retailer · last transfer TD2 · attestations [VD1] · recall: none · policy v1.0"
+        ]
+      },
+      {
+        "kind": "tamper",
+        "lines": [
+          [
+            "operator modifies one byte of the stored attestation payload, then re-verifies",
+            "note"
+          ],
+          [
+            "after tampering   : recomputed 770a4dc9d93b22b8e0d3aa975786c4264eb29433dfeb8f1b7b6ac0fcd56c084a · verified false",
+            "bad"
+          ],
+          [
+            "tamper detected from anchored evidence alone ✓ (off-ledger integrity, R3)",
+            "ok"
+          ]
+        ]
+      },
+      {
+        "kind": "claim",
+        "text": "<b>Fragmentation, solved on screen.</b> One command assembled a regulator-ready, hash-verified evidence bundle in 377 ms — and a silent payload modification was exposed by the anchored digests. Confidential payloads never left the off-ledger store."
+      }
+    ],
+    "S3": [
+      {
+        "kind": "info",
+        "text": "Scenario S3 — governance policy update with per-record binding, lot LOT-E. The thesis mechanism under direct test."
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R1",
+        "type": "Create",
+        "asset": "LOT-E",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "payload hash a8b3de…7b868 ✓ · asset LOT-E is new",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": "lot LOT-E registered",
+        "fx": {
+          "asset": [
+            "LOT-E",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R2",
+        "type": "Verify",
+        "asset": "LOT-E",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "S3-R1"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {S3-R1}",
+            "ok"
+          ],
+          [
+            "verification integrity ✓ attestation payload 81e0bf…4c885",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": ""
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R3",
+        "type": "Verify",
+        "asset": "LOT-E",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "S3-R2"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {S3-R2}",
+            "ok"
+          ],
+          [
+            "verification integrity ✓ attestation payload bbc41e…8093e",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "aaf367…89788",
+        "after": ""
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R4",
+        "type": "Verify",
+        "asset": "LOT-E",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "S3-R3"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {S3-R3}",
+            "ok"
+          ],
+          [
+            "verification integrity ✓ attestation payload 74fcc3…e3f7d",
+            "ok"
+          ]
+        ],
+        "bind": "v2.0",
+        "bindHash": "f65b7a…6adb2",
+        "after": ""
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R5",
+        "type": "Transfer",
+        "asset": "LOT-E",
+        "actor": "Producer",
+        "source": "TMS",
+        "preds": [
+          "S3-R4"
+        ],
+        "checks": [
+          [
+            "schema · predecessors {S3-R4}",
+            "ok"
+          ],
+          [
+            "custody continuity ✓ submitter = current custodian (Producer)",
+            "ok"
+          ],
+          [
+            "recall lock ✓ no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v2.0",
+        "bindHash": "f65b7a…6adb2",
+        "after": "custody → Warehouse",
+        "fx": {
+          "asset": [
+            "LOT-E",
+            "Warehouse",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "query",
+        "label": "per-record binding verification (draft Table 4)",
+        "lines": [
+          "S3-R1 · boundAt 2026-08-21T15:30:22Z · v1.0 · aaf367…89788 · correct ✓",
+          "S3-R2 · boundAt 2026-08-21T15:30:26Z · v1.0 · aaf367…89788 · correct ✓",
+          "S3-R3 · boundAt 2026-08-21T15:30:29Z · v1.0 · aaf367…89788 · correct ✓",
+          "S3-R4 · boundAt 2026-08-21T15:30:38Z · v2.0 · f65b7a…6adb2 · correct ✓",
+          "S3-R5 · boundAt 2026-08-21T15:30:41Z · v2.0 · f65b7a…6adb2 · correct ✓"
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "auditor recompute · PolicyHistory()",
+        "lines": [
+          "policies/policy_v1.md → sha256 aaf367…89788 ✓ matches anchor",
+          "policies/policy_v2.md → sha256 f65b7a…6adb2 ✓ matches anchor",
+          "verifiability invariant holds: any auditor can prove which ruleset governed each record"
+        ]
+      },
+      {
+        "kind": "claim",
+        "text": "<b>The central mechanism, running.</b> The rulebook changed mid-stream — and every record still proves which policy version governed its admission. Governance became a verifiable property of the evidence itself, not an ambient platform condition."
+      }
+    ]
+  }
+}

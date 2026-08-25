@@ -1,0 +1,12 @@
+{
+  "version": "v1.0",
+  "hash": "aaf3673cce9034ff14bfd28982d4149012243e590223af47f2210023d6889788",
+  "effectiveFrom": "2026-08-21T15:28:46Z",
+  "file": "policy_v1.md"
+}
+{
+  "version": "v2.0",
+  "hash": "f65b7a6422ad452f0de24b18fef98ba5aba8bfcdc8605a60f185cc91d866adb2",
+  "effectiveFrom": "2026-08-21T15:30:34Z",
+  "file": "policy_v2.md"
+}
