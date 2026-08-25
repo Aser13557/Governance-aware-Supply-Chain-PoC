@@ -1,1 +1,0 @@
-INVARIANT VIOLATION [totality]: no governance policy is active at submission time 2026-08-21T15:29:46Z; every accepted header must bind exactly one policy hash
