@@ -1,1 +1,0 @@
-audit pack for LOT-D: 377 ms (4 events, 4 payload verifications)
