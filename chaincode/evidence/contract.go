@@ -846,11 +846,23 @@ func (c *EvidenceContract) AffectedDescendants(ctx contractapi.TransactionContex
 	return out, nil
 }
 
-// GetTraceMetrics computes the lineage-derived indicators of §3.7:
-// time-to-trace (the interval between the queried event and the earliest
-// Create on the lineage path) and audit hand-offs (the number of organization
-// changes along that path). Dispute cycle time is reported as not instrumented
-// rather than omitted, because the dispute governance domain is out of scope.
+// GetTraceMetrics computes the lineage-derived indicators of the conceptual
+// model §3.7.
+//
+// The model counts audit hand-offs along the MINIMAL EVIDENCE PATH, so the
+// path is reconstructed as an actual walk through the lineage graph: the
+// shortest chain of predecessor links joining the queried event to a Create,
+// with the earliest Create preferred when several are equidistant. Reporting
+// the full set of connected events in time order would be wrong wherever a
+// transformation joins two inputs, because that set contains parallel
+// branches and is not a path at all.
+//
+// For an asset-scoped query the queried event is taken to be the most recent
+// event on the lineage; the selection rule is reported alongside the values so
+// the figure cannot be read as something the caller chose.
+//
+// Dispute cycle time is reported as not instrumented rather than omitted,
+// because the dispute governance domain is out of scope.
 func (c *EvidenceContract) GetTraceMetrics(ctx contractapi.TransactionContextInterface, assetID string) (*TraceMetrics, error) {
 	visited, _, err := c.collect(ctx, assetID)
 	if err != nil {
@@ -861,6 +873,8 @@ func (c *EvidenceContract) GetTraceMetrics(ctx contractapi.TransactionContextInt
 		AssetID:              assetID,
 		PathEvents:           []string{},
 		PathOrganizations:    []string{},
+		QueriedEventRule:     "most recent event on the lineage of the queried asset",
+		PathRule:             "shortest predecessor chain from the queried event to a Create; earliest Create preferred among equals",
 		DisputeCycleSeconds:  -1,
 		DisputeCycleReported: false,
 	}
@@ -868,36 +882,79 @@ func (c *EvidenceContract) GetTraceMetrics(ctx contractapi.TransactionContextInt
 		return m, nil
 	}
 
-	var earliestCreate *EvidenceHeader
-	for _, h := range nodes {
-		if h.EventType == "Create" {
-			if earliestCreate == nil || h.Timestamp < earliestCreate.Timestamp {
-				earliestCreate = h
-			}
-		}
-	}
 	queried := nodes[len(nodes)-1]
 	m.QueriedEvent = queried.EventID
 	m.QueriedEventTime = queried.Timestamp
 
-	prevOrg := ""
-	for _, h := range nodes {
-		m.PathEvents = append(m.PathEvents, h.EventID)
-		m.PathOrganizations = append(m.PathOrganizations, h.ActorOrg)
-		if prevOrg != "" && h.ActorOrg != prevOrg {
-			m.AuditHandoffs++
+	// Breadth-first walk backwards over predecessor links. The first level at
+	// which a Create appears is the shortest distance to origin; among the
+	// Creates found at that level the earliest is chosen.
+	type step struct {
+		id   string
+		path []string
+	}
+	level := []step{{id: queried.EventID, path: []string{queried.EventID}}}
+	seen := map[string]bool{queried.EventID: true}
+	var best []string
+
+	for len(level) > 0 && best == nil {
+		var found []step
+		var next []step
+		for _, cur := range level {
+			h := visited[cur.id]
+			if h == nil {
+				continue
+			}
+			if h.EventType == "Create" {
+				found = append(found, cur)
+				continue
+			}
+			for _, p := range h.PredecessorIDs {
+				if seen[p] || visited[p] == nil {
+					continue
+				}
+				seen[p] = true
+				np := append(append([]string{}, cur.path...), p)
+				next = append(next, step{id: p, path: np})
+			}
 		}
-		prevOrg = h.ActorOrg
+		if len(found) > 0 {
+			sort.Slice(found, func(i, j int) bool {
+				hi, hj := visited[found[i].id], visited[found[j].id]
+				if hi.Timestamp == hj.Timestamp {
+					return hi.EventID < hj.EventID
+				}
+				return hi.Timestamp < hj.Timestamp
+			})
+			best = found[0].path
+			break
+		}
+		level = next
 	}
 
-	if earliestCreate != nil {
-		m.EarliestCreate = earliestCreate.EventID
-		m.EarliestCreateTime = earliestCreate.Timestamp
-		t0, err0 := time.Parse(time.RFC3339, earliestCreate.Timestamp)
+	// The walk runs from the queried event back to origin; report it forwards.
+	if best != nil {
+		for i := len(best) - 1; i >= 0; i-- {
+			h := visited[best[i]]
+			m.PathEvents = append(m.PathEvents, h.EventID)
+			m.PathOrganizations = append(m.PathOrganizations, h.ActorOrg)
+		}
+		origin := visited[best[len(best)-1]]
+		m.EarliestCreate = origin.EventID
+		m.EarliestCreateTime = origin.Timestamp
+		t0, err0 := time.Parse(time.RFC3339, origin.Timestamp)
 		t1, err1 := time.Parse(time.RFC3339, queried.Timestamp)
 		if err0 == nil && err1 == nil {
 			m.TimeToTraceSeconds = int64(t1.Sub(t0).Seconds())
 		}
+	}
+
+	prevOrg := ""
+	for _, org := range m.PathOrganizations {
+		if prevOrg != "" && org != prevOrg {
+			m.AuditHandoffs++
+		}
+		prevOrg = org
 	}
 	return m, nil
 }
