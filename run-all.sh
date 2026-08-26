@@ -77,7 +77,7 @@ ok "listening on :4000"
 # ── 4. fixtures ────────────────────────────────────────────────────────────
 say "4/6  adapters and fixtures"
 cd "$ROOT" && node adapters/build-fixtures.js | head -1
-ok "17 events across 5 source systems"
+ok "fixtures generated"
 
 # ── 5. scenarios ───────────────────────────────────────────────────────────
 say "5/6  scenarios"
@@ -87,6 +87,7 @@ bash scenarios/anchor_v1.sh
 bash scenarios/s1_recall.sh
 bash scenarios/s2_audit.sh
 bash scenarios/s3_policy.sh
+bash scenarios/s4_validation.sh
 
 # ── 6. summarize ───────────────────────────────────────────────────────────
 say "6/6  artifacts"

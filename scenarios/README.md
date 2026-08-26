@@ -1,20 +1,18 @@
-# scenarios (Day 5) — run order + artifact mapping
+# scenarios - run order and artifact mapping
 
-Order is mandatory (totality): 0? → v1.0 → S1 → S2 → S3.
+Order is mandatory. Totality means nothing can be admitted before a policy is
+anchored, and the validation-surface scenario depends on state built earlier.
 
-- `s0_totality.sh` (optional, 5 lines): attempt CreateHeader BEFORE any policy → capture `[totality]` rejection → results/S0_totality_rejection.txt
-- `anchor_v1.sh`   : sha256 policy_v1.md → AnchorPolicy v1.0
-- `s1_recall.sh`   : C1,C2,T1,TR1,V1,R1 + negatives TR-X (custody) and TR2 (recall lock) → results/S1_table3_observed.json, S1_negative_custody.txt, S1_negative_transfer.txt, S1_lineage.json
-- `s2_audit.sh`    : D1,TD1,VD1,TD2 → auditPack + passport + timing; tamper one payload byte → re-verify → results/S2_auditpack.json, S2_passport.json, S2_verification.txt, S2_generation_time.txt, S2_tamper.txt
-- `s3_policy.sh`   : S3-R1..R3 under v1.0 → AnchorPolicy v2.0 (effectiveFrom=now) → S3-R4..R5 → dump per-record {submittedAt(boundAt), policyVersion, policyHash} + PolicyHistory recompute check → results/S3_table4_bindings.json
-- `summarize.sh`   : assemble results/feasibility_summary.md (§6.4 sentence stems with actual values)
+| Script | What it establishes |
+|---|---|
+| `s0_totality.sh` | with no policy anchored, a submission is refused |
+| `anchor_v1.sh` | policy v1.0 anchored with its machine-readable parameters |
+| `s1_recall.sh` | four source systems, one validation path; custody, consumption and recall-lock rejections; lineage, descendants, indicators; the recall lifted only by a recorded governance act |
+| `s2_audit.sh` | audit pack with identity attestations and indicators; passport; tamper detection |
+| `s3_policy.sh` | per-record binding across a policy change, and the change of validation behaviour that binding records |
+| `s4_validation.sh` | every remaining admission check, plus the registry's own controls |
+| `summarize.sh` | replay feed and the filled sentence stems |
 
-Every artifact name maps 1:1 to a draft table/INSERT — see root README table.
-
-## Replay console feed
-
-`summarize.sh` additionally emits `results/replay.json` in the beat schema
-documented in `console/replay.html` (the embedded demo data IS the schema
-example). Dropping that file onto the console flips it from DEMO to REAL data
-— same playback, actual observed values. Used in: defense presentation,
-expert briefing (Track B stimulus), and one screenshot figure for §6.
+`submit_event <id> [tag]` asserts the outcome: with no tag the submission must
+be accepted; with one it must be refused AND carry that exact bracketed tag, so
+a rejection for the wrong reason fails the run rather than passing quietly.
