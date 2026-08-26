@@ -81,7 +81,7 @@ const policies = (() => {
 const govBeat = (v, note) => {
   const p = policies.find((x) => x.version === v); if (!p) return null;
   const pr = p.params || {};
-  return { kind: 'gov', v, hash: short(p.hash), ef: p.effectiveFrom,
+  return { kind: 'gov', act: 'AnchorPolicy', v, hash: short(p.hash), ef: p.effectiveFrom,
     note: `${note} - tolerance ${pr.quantityTolerance}, distinct attestor ${pr.verifyRequiresDistinctActor}` };
 };
 
@@ -99,6 +99,12 @@ const r1 = submit('R1'); if (r1) S1.push(r1);
 const nrt = reject('N-RECALL-TRANSFER', 'Transfer', 'LOT-C', 'Carrier'); if (nrt) S1.push(nrt);
 const nrf = reject('N-RECALL-TRANSFORM', 'Transform', 'LOT-Z', 'Carrier'); if (nrf) S1.push(nrf);
 
+const ncl = reject('N-CLEAR-NONADMIN', 'Governance', 'LOT-C', 'Org2MSP'); if (ncl) S1.push(ncl);
+const rs = readJSON('S1_recall_status.json');
+if (rs && rs.clearance) S1.push({ kind: 'gov', act: 'ClearRecall', v: rs.clearance.policyVersion,
+  hash: short(rs.clearance.policyHash), ef: rs.clearance.clearedAt, policyUnchanged: true,
+  note: `recall on ${rs.assetID} lifted by ${rs.clearance.clearedBy}, bound to the policy then in force: ${rs.clearance.reason}` });
+const tr3 = submit('TR3'); if (tr3) S1.push(tr3);
 const lin = readJSON('S1_lineage.json'), desc = readJSON('S1_descendants.json'), met = readJSON('S1_trace_metrics.json');
 if (lin) S1.push({ kind: 'query', label: 'GetLineageByAsset("LOT-C")', lines: [
   `nodes ${lin.nodeCount} - edges ${lin.edgeCount} - origins [${(lin.originCreates || []).join(', ')}]`,
@@ -109,11 +115,6 @@ if (met) S1.push({ kind: 'query', label: 'GetTraceMetrics("LOT-C")', lines: [
   `time-to-trace ${met.timeToTraceSeconds}s (${met.earliestCreate} -> ${met.queriedEvent})`,
   `audit hand-offs ${met.auditHandoffs}: ${(met.pathOrganizations || []).join(' -> ')}`] });
 
-const ncl = reject('N-CLEAR-NONADMIN', 'Governance', 'LOT-C', 'Org2MSP'); if (ncl) S1.push(ncl);
-const rs = readJSON('S1_recall_status.json');
-if (rs && rs.clearance) S1.push({ kind: 'gov', v: rs.clearance.policyVersion, hash: short(rs.clearance.policyHash),
-  ef: rs.clearance.clearedAt, note: `recall on ${rs.assetID} cleared by ${rs.clearance.clearedBy}: ${rs.clearance.reason}` });
-const tr3 = submit('TR3'); if (tr3) S1.push(tr3);
 S1.push({ kind: 'claim', text: '<b>Agnosticism, and invariants that actually bite.</b> Four enterprise systems fed one validation path, while four separate rejections show custody, consumption and the recall lock being enforced - and the lock lifting only on a recorded governance act.' });
 
 /* ── S2 ─────────────────────────────────────────────────────────────────── */
