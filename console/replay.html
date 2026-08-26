@@ -374,9 +374,13 @@ function expand(b){
   if(b.kind==='claim'){ S.push({w:4, run(){ const d=document.createElement('div'); d.className='claim'; d.innerHTML=b.text; log.appendChild(d); log.scrollTop=log.scrollHeight; }}); return S; }
   if(b.kind==='gov'){
     S.push({w:3, run(){ b._e=entry();
-      line(b._e,'<span class="t">'+ts()+'</span><span class="gov">\u27d0 GOVERNANCE \u00b7 AnchorPolicy '+b.v+' \u00b7 hash '+b.hash+' \u00b7 effectiveFrom '+b.ef+'</span>'); }});
+      var act=b.act||'AnchorPolicy';
+      var when=(act==='AnchorPolicy'?' \u00b7 effectiveFrom ':' \u00b7 at ')+b.ef;
+      line(b._e,'<span class="t">'+ts()+'</span><span class="gov">\u27d0 GOVERNANCE \u00b7 '+act+' '+b.v+' \u00b7 hash '+b.hash+when+'</span>'); }});
     S.push({w:2, run(){ line(b._e, b.note,'chk'); }});
-    S.push({w:2, run(){ state.pol=b.v; POLHASH[b.v]=b.hash; b._e.className='entry '+spine();
+    S.push({w:2, run(){
+      if(b.policyUnchanged){ line(b._e,'policy in force is unchanged by this act','chk gov'); return; }
+      state.pol=b.v; POLHASH[b.v]=b.hash; b._e.className='entry '+spine();
       line(b._e,'ACTIVE POLICY \u2192 '+b.v,'chk gov'); railify(); }});
     return S;
   }
