@@ -1,0 +1,16 @@
+{
+  "eventID": "VD1",
+  "eventType": "Verify",
+  "assetID": "LOT-D",
+  "actorOrg": "Laboratory",
+  "timestamp": "2026-07-20T10:07:00Z",
+  "predecessorIDs": [
+    "TD1"
+  ],
+  "payloadHash": "10e033499a6ef8e1968aeff843778d933c800425b82940699e64d94c766b2fdd",
+  "schemaID": "scmt-header-v1",
+  "actorSignature": "fabric-msp:Org2MSP;id:eDUwOTo6Q049b3JnMmFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMi5leGFtcGxlLmNvbSxPPW9yZzIuZXhhbXBsZS5jb20sTD1IdXJzbGV5LFNUPUhhbXBzaGlyZSxDPVVL",
+  "policyHash": "fe6d3fc062db5db2d5598daaa4561e6157a6dda04fd0f62cd79fee1a585a4f29",
+  "policyVersion": "v1.0",
+  "boundAt": "2026-08-26T22:34:10Z"
+}

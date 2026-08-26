@@ -1,0 +1,18 @@
+{
+  "eventID": "C1",
+  "eventType": "Create",
+  "assetID": "LOT-A",
+  "actorOrg": "Producer",
+  "timestamp": "2026-07-20T09:00:00Z",
+  "predecessorIDs": [],
+  "payloadHash": "9bd30e97f4a9d7e87c79cf9a7597e27095c6b2abab0e6da015b012a6e5d44258",
+  "schemaID": "scmt-header-v1",
+  "actorSignature": "fabric-msp:Org1MSP;id:eDUwOTo6Q049b3JnMWFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMS5leGFtcGxlLmNvbSxPPW9yZzEuZXhhbXBsZS5jb20sTD1EdXJoYW0sU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUw==",
+  "quantity": {
+    "value": 600,
+    "unit": "KG"
+  },
+  "policyHash": "fe6d3fc062db5db2d5598daaa4561e6157a6dda04fd0f62cd79fee1a585a4f29",
+  "policyVersion": "v1.0",
+  "boundAt": "2026-08-26T22:33:38Z"
+}

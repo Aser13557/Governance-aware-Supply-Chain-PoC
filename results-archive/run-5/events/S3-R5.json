@@ -1,0 +1,17 @@
+{
+  "eventID": "S3-R5",
+  "eventType": "Transfer",
+  "assetID": "LOT-E",
+  "actorOrg": "Producer",
+  "timestamp": "2026-07-20T09:20:00Z",
+  "predecessorIDs": [
+    "S3-R4"
+  ],
+  "payloadHash": "6305d80ab2aae992bc030133eb02456b6691b81e978a47779aff15fc56159dc2",
+  "schemaID": "scmt-header-v1",
+  "actorSignature": "fabric-msp:Org1MSP;id:eDUwOTo6Q049b3JnMWFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMS5leGFtcGxlLmNvbSxPPW9yZzEuZXhhbXBsZS5jb20sTD1EdXJoYW0sU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUw==",
+  "newCustodian": "Warehouse",
+  "policyHash": "c2f0a100d3b83272f4a3d34334ee61d523bae99686507eb7a24ce6014435a01d",
+  "policyVersion": "v2.0",
+  "boundAt": "2026-08-26T22:34:48Z"
+}
