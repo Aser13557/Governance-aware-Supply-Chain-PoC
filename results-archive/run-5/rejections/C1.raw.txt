@@ -1,0 +1,1 @@
+Error: endorsement failure during invoke. response: status:500 message:"INVARIANT VIOLATION [totality]: no governance policy is active at submission time 2026-08-26T22:33:27Z; every accepted header must bind exactly one policy hash" 

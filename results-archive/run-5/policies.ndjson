@@ -1,0 +1,3 @@
+{"version":"v1.0","hash":"fe6d3fc062db5db2d5598daaa4561e6157a6dda04fd0f62cd79fee1a585a4f29","effectiveFrom":"2026-08-26T22:33:33Z","file":"policy_v1.md","params":{"quantityTolerance":0.5,"verifyRequiresDistinctActor":false,"recallBlocksTransform":true}}
+{"version":"v2.0","hash":"c2f0a100d3b83272f4a3d34334ee61d523bae99686507eb7a24ce6014435a01d","effectiveFrom":"2026-08-26T22:34:40Z","file":"policy_v2.md","params":{"quantityTolerance":0.25,"verifyRequiresDistinctActor":true,"recallBlocksTransform":true}}
+{"version":"v3.0","hash":"d52cf4dc322280b1488ea7be7227c96544f3c828af33fb0d8f6bf08501a944dd","effectiveFrom":"2026-08-26T23:34:55Z","file":"policy_v3_scheduled.md","params":{"quantityTolerance":0.1,"verifyRequiresDistinctActor":true,"recallBlocksTransform":true}}

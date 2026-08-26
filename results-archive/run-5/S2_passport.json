@@ -1,0 +1,31 @@
+{
+  "assetID": "LOT-D",
+  "currentCustodian": "Retailer",
+  "quantity": {
+    "remaining": 500,
+    "unit": "KG",
+    "consumed": false
+  },
+  "recallStatus": "none",
+  "recallClearance": null,
+  "origin": [
+    "D1"
+  ],
+  "lastTransfer": {
+    "eventID": "TD2",
+    "at": "2026-07-20T10:20:00Z",
+    "to": "Retailer"
+  },
+  "attestations": [
+    {
+      "eventID": "VD1",
+      "by": "Laboratory",
+      "at": "2026-07-20T10:07:00Z",
+      "payloadHash": "10e033499a6ef8e1968aeff843778d933c800425b82940699e64d94c766b2fdd"
+    }
+  ],
+  "eventCount": 4,
+  "policyVersionAtLastEvent": "v1.0",
+  "policyHashAtLastEvent": "fe6d3fc062db5db2d5598daaa4561e6157a6dda04fd0f62cd79fee1a585a4f29",
+  "generatedAt": "2026-08-26T22:34:17.936Z"
+}

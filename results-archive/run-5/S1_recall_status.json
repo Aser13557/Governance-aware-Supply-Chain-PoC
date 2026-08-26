@@ -1,0 +1,12 @@
+{
+  "assetID": "LOT-C",
+  "recalled": false,
+  "clearance": {
+    "assetID": "LOT-C",
+    "reason": "root cause traced to a labelling error; lot released",
+    "clearedBy": "Org1MSP",
+    "clearedAt": "2026-08-26T22:33:57Z",
+    "policyVersion": "v1.0",
+    "policyHash": "fe6d3fc062db5db2d5598daaa4561e6157a6dda04fd0f62cd79fee1a585a4f29"
+  }
+}
