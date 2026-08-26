@@ -164,8 +164,10 @@ type TraceMetrics struct {
 	EarliestCreateTime   string   `json:"earliestCreateTime"`
 	TimeToTraceSeconds   int64    `json:"timeToTraceSeconds"` // §3.7 time-to-trace
 	AuditHandoffs        int      `json:"auditHandoffs"`      // §3.7 organization changes along the path
-	PathEvents           []string `json:"pathEvents"`         // the minimal evidence path used
-	PathOrganizations    []string `json:"pathOrganizations"`  // organizations in path order
+	PathEvents           []string `json:"pathEvents"`        // the minimal evidence path, origin first
+	PathOrganizations    []string `json:"pathOrganizations"` // organizations in path order
+	QueriedEventRule     string   `json:"queriedEventRule"`  // how the queried event was selected
+	PathRule             string   `json:"pathRule"`          // how the minimal path was chosen
 	DisputeCycleSeconds  int64    `json:"disputeCycleSeconds"`
 	DisputeCycleReported bool     `json:"disputeCycleReported"`
 }
