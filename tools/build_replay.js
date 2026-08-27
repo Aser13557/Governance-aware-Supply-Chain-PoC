@@ -45,12 +45,25 @@ const AFTER = {
   'S3-P1': 'lot LOT-F registered, 1000 KG', 'S3-P2': 'LOT-G produced, 999.6 KG',
   'S3-P3': 'lot LOT-H registered, 1000 KG',
 };
+// [assetID, custodian, recalled, consumed]. A transformation registers the lot
+// it produced and marks the inputs it consumed, so the asset panel cannot show
+// a lot as available after the log has said it was consumed.
 const FX = {
-  C1: ['LOT-A', 'Producer', false], C2: ['LOT-B', 'Producer', false], T1: ['LOT-C', 'Processor', false],
-  TR1: ['LOT-C', 'Carrier', false], R1: ['LOT-C', 'Carrier', true], TR3: ['LOT-C', 'Retailer', false],
-  D1: ['LOT-D', 'Producer', false], TD1: ['LOT-D', 'Distributor', false], TD2: ['LOT-D', 'Retailer', false],
-  'S3-R1': ['LOT-E', 'Producer', false], 'S3-R5': ['LOT-E', 'Warehouse', false],
-  'S3-P1': ['LOT-F', 'Producer', false], 'S3-P3': ['LOT-H', 'Producer', false],
+  C1:   [['LOT-A', 'Producer', false, false]],
+  C2:   [['LOT-B', 'Producer', false, false]],
+  T1:   [['LOT-C', 'Processor', false, false],
+         ['LOT-A', 'Producer', false, true], ['LOT-B', 'Producer', false, true]],
+  TR1:  [['LOT-C', 'Carrier', false, false]],
+  R1:   [['LOT-C', 'Carrier', true, false]],
+  TR3:  [['LOT-C', 'Retailer', false, false]],
+  D1:   [['LOT-D', 'Producer', false, false]],
+  TD1:  [['LOT-D', 'Distributor', false, false]],
+  TD2:  [['LOT-D', 'Retailer', false, false]],
+  'S3-R1': [['LOT-E', 'Producer', false, false]],
+  'S3-R5': [['LOT-E', 'Warehouse', false, false]],
+  'S3-P1': [['LOT-F', 'Producer', false, false]],
+  'S3-P2': [['LOT-G', 'Producer', false, false], ['LOT-F', 'Producer', false, true]],
+  'S3-P3': [['LOT-H', 'Producer', false, false]],
 };
 
 function checksFor(h) {
@@ -77,7 +90,7 @@ const submit = (id) => {
     source: SOURCE[id] || '-', preds: h.predecessorIDs || [], checks: checksFor(h),
     at: h.boundAt, opAt: h.timestamp,
     bind: h.policyVersion, bindHash: short(h.policyHash), after: AFTER[id] || '',
-    fx: FX[id] ? { asset: FX[id] } : undefined,
+    fx: FX[id] ? { assets: FX[id] } : undefined,
   };
 };
 
@@ -164,7 +177,9 @@ if (tam) {
     ['tamper detected from anchored evidence alone', 'ok']] });
 }
 const iop = readJSON('S2_interop_check.json');
-if (iop) S2.push({ kind: 'query', label: 'interoperability exports (EPCIS 2.0 and PROV-O)', lines: [
+if (iop) S2.push({ kind: 'query', label: `interoperability exports (EPCIS 2.0 and PROV-O) - lot ${iop.asset}`, lines: [
+  `exported from lot ${iop.asset}, whose lineage exercises all five event types;`,
+  `the audit pack above covers LOT-D, which has no transformation to map`,
   `${iop.anchoredEvents} anchored events exported to both vocabularies`,
   'transformations map to TransformationEvent; lineage links map to PROV derivation relations',
   'every exported event carries the policy reference under which it was admitted'] });
