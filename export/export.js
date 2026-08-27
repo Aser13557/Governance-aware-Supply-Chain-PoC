@@ -82,8 +82,21 @@ async function auditPack(assetID, role, prefix) {
       earliestCreate: metrics.earliestCreate,
       queriedEvent: metrics.queriedEvent,
       auditHandoffs: metrics.auditHandoffs,
+      // The pack carries every header on the lineage, while the indicators are
+      // computed along the minimal evidence path the model defines. Where a
+      // transformation joins two inputs the two differ, so the path and the
+      // rule that selected it are stated rather than left to be inferred.
+      pathEvents: metrics.pathEvents,
       pathOrganizations: metrics.pathOrganizations,
-      disputeCycleTime: metrics.disputeCycleReported ? metrics.disputeCycleSeconds : 'no resolved dispute on this lineage',
+      pathRule: metrics.pathRule,
+      queriedEventRule: metrics.queriedEventRule,
+      disputeCycleSeconds: metrics.disputeCycleReported ? metrics.disputeCycleSeconds : null,
+      disputeCycleTime: metrics.disputeCycleReported
+        ? `${metrics.disputeCycleSeconds} s`
+        : 'no resolved dispute on this lineage',
+      note: 'time-to-trace derives from operational event times in the demonstration fixtures; '
+          + 'the dispute cycle time and the pack generation time are intervals within a single automated run. '
+          + 'All three show that the indicators are computed from the evidence, not that they measure operational performance.',
     },
     recallStatus: recall,
     disputes: disputes.map((d) => ({
@@ -116,7 +129,13 @@ async function auditPack(assetID, role, prefix) {
      `(${pack.indicators.earliestCreate} -> ${pack.indicators.queriedEvent})`,
      `audit hand-offs    : ${pack.indicators.auditHandoffs} ` +
      `(${pack.indicators.pathOrganizations.join(' -> ')})`,
-     `dispute cycle time : ${pack.indicators.disputeCycleTime}`].join('\n') + '\n');
+     `dispute cycle time : ${pack.indicators.disputeCycleTime}`,
+     ``,
+     `minimal evidence path : ${pack.indicators.pathEvents.join(' -> ')}`,
+     `path selection rule   : ${pack.indicators.pathRule}`,
+     `scope headers         : ${pack.events.length} (the lineage carries parallel branches the path does not)`,
+     ``,
+     `note: ${pack.indicators.note}`].join('\n') + '\n');
 
   console.log(`   ${g('PASS')} audit pack - ${pack.events.length} events - policy ${policyVersions.join(', ')} - ` +
     `payloads ${pack.payloadVerification.passed}/${pack.payloadVerification.checked} PASS - ${pack.generatedInMs} ms`);
