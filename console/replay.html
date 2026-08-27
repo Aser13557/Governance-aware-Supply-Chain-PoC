@@ -371,9 +371,10 @@ function railify(){
   else { p.className='polchip live';
     p.innerHTML='\u27d0 '+state.pol+' in force<span class="h">hash '+polHash(state.pol)+'</span>'; }
   const tb=$('#assets tbody'); tb.innerHTML='';
-  Object.entries(state.assets).forEach(([id,[c,rec]])=>{
+  Object.entries(state.assets).forEach(([id,[c,rec,con]])=>{
+    var st = rec ? 'LOCKED' : (con ? 'consumed' : '\u2014');
     tb.insertAdjacentHTML('beforeend',
-      '<tr><td class="a">'+id+'</td><td>'+c+'</td><td class="'+(rec?'r':'')+'">'+(rec?'LOCKED':'\u2014')+'</td></tr>');
+      '<tr><td class="'+(con?'':'a')+'">'+id+'</td><td>'+c+'</td><td class="'+(rec?'r':'')+'">'+st+'</td></tr>');
   });
 }
 
@@ -413,7 +414,10 @@ function expand(b){
       S.push({w:2, run(){ line(b._e,'policy binding \u2192 active(t) = '+b.bind+' \u00b7 hash '+(b.bindHash||polHash(b.bind)),'chk gov'); }});
       S.push({w:2.4, run(){
         line(b._e,'<span class="ok">ANCHORED</span> \u00b7 header immutable'+(b.after?' \u00b7 '+b.after:'')+'<span class="seal">\u27d0 '+b.bind+'</span>','chk');
-        state.a++; if(b.fx&&b.fx.asset){ const [id,c,rec]=b.fx.asset; state.assets[id]=[c,rec]; } railify(); }});
+        state.a++;
+        if(b.fx&&b.fx.assets){ b.fx.assets.forEach(function(x){ state.assets[x[0]]=[x[1],x[2],x[3]]; }); }
+        else if(b.fx&&b.fx.asset){ const a=b.fx.asset; state.assets[a[0]]=[a[1],a[2],false]; }
+        railify(); }});
     }
     return S;
   }
