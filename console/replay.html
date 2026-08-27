@@ -348,8 +348,16 @@ const $ = s=>document.querySelector(s);
 const log=$('#log');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Times come from the data. The synthetic clock below is used only by the
+// embedded demo, which has no run behind it; a loaded feed always supplies its
+// own, so the console never shows a time the artifacts do not contain.
 function ts(){ clock += 7000 + Math.floor(Math.random()*40000);
   return new Date(clockStart+clock).toISOString().slice(11,19)+'Z'; }
+function beatTime(b){
+  if (b && Object.prototype.hasOwnProperty.call(b,'at'))
+    return b.at ? String(b.at).slice(11,19)+'Z' : '';   // '' = no time on record
+  return ts();                                          // embedded demo only
+}
 function spine(){ return state.pol==='v2.0'?'p2':state.pol==='v1.0'?'p1':'p0'; }
 
 function entry(){ const d=document.createElement('div'); d.className='entry '+spine(); log.appendChild(d); return d; }
@@ -372,13 +380,13 @@ function railify(){
 /* expand one beat into an array of steps: {run:fn, w:delayWeight} */
 function expand(b){
   const S=[];
-  if(b.kind==='info'){ S.push({w:2, run(){ const e=entry(); line(e,'<span class="t">'+ts()+'</span><span class="note" style="padding-left:0">'+b.text+'</span>'); }}); return S; }
+  if(b.kind==='info'){ S.push({w:2, run(){ const e=entry(); line(e,'<span class="note" style="padding-left:0">'+b.text+'</span>'); }}); return S; }
   if(b.kind==='claim'){ S.push({w:4, run(){ const d=document.createElement('div'); d.className='claim'; d.innerHTML=b.text; log.appendChild(d); log.scrollTop=log.scrollHeight; }}); return S; }
   if(b.kind==='gov'){
     S.push({w:3, run(){ b._e=entry();
       var act=b.act||'AnchorPolicy';
       var when=(act==='AnchorPolicy'?' \u00b7 effectiveFrom ':' \u00b7 at ')+b.ef;
-      line(b._e,'<span class="t">'+ts()+'</span><span class="gov">\u27d0 GOVERNANCE \u00b7 '+act+' '+b.v+' \u00b7 hash '+b.hash+when+'</span>'); }});
+      line(b._e,'<span class="t">'+beatTime(b)+'</span><span class="gov">\u27d0 GOVERNANCE \u00b7 '+act+' '+b.v+' \u00b7 hash '+b.hash+when+'</span>'); }});
     S.push({w:2, run(){ line(b._e, b.note,'chk'); }});
     S.push({w:2, run(){
       if(b.policyUnchanged){ line(b._e,'policy in force is unchanged by this act','chk gov'); return; }
@@ -388,7 +396,7 @@ function expand(b){
   }
   if(b.kind==='submit'||b.kind==='reject'){
     S.push({w:3, run(){ b._e=entry();
-      line(b._e,'<span class="t">'+ts()+'</span><span class="hd">\u25b8 submit \u00b7 '+b.id+' \u00b7 '+b.type+' \u00b7 '+b.asset+' \u00b7 actor '+b.actor+' \u00b7 source '+b.source+(b.preds&&b.preds.length?' \u00b7 preds {'+b.preds.join(', ')+'}':'')+'</span>'); }});
+      line(b._e,'<span class="t">'+beatTime(b)+'</span><span class="hd">\u25b8 submit \u00b7 '+b.id+' \u00b7 '+b.type+' \u00b7 '+b.asset+' \u00b7 actor '+b.actor+' \u00b7 source '+b.source+(b.preds&&b.preds.length?' \u00b7 preds {'+b.preds.join(', ')+'}':'')+'</span>'); }});
     (b.checks||[]).forEach(c=>S.push({w:1.4, run(){ line(b._e, c[0]+(c[1]==='ok'?' <span class="ok">\u2713</span>':''),'chk'); }}));
     if(b.kind==='reject'){
       S.push({w:3, run(){ line(b._e,'\u2715 '+b.err,'chk bad'); }});
@@ -402,12 +410,12 @@ function expand(b){
     return S;
   }
   if(b.kind==='query'){
-    S.push({w:3, run(){ b._e=entry(); line(b._e,'<span class="t">'+ts()+'</span><span class="qy">\u25c8 '+b.label+'</span>'); }});
+    S.push({w:3, run(){ b._e=entry(); line(b._e,'<span class="t">'+beatTime(b)+'</span><span class="qy">\u25c8 '+b.label+'</span>'); }});
     b.lines.forEach(l=>S.push({w:1.6, run(){ line(b._e,l,'chk qy'); }}));
     return S;
   }
   if(b.kind==='tamper'){
-    S.push({w:3, run(){ b._e=entry(); line(b._e,'<span class="t">'+ts()+'</span><span class="hd">\u25b8 tamper test (E3)</span>'); }});
+    S.push({w:3, run(){ b._e=entry(); line(b._e,'<span class="t">'+beatTime(b)+'</span><span class="hd">\u25b8 tamper test (E3)</span>'); }});
     b.lines.forEach(l=>S.push({w:2, run(){ line(b._e,l[0],'chk '+l[1]); }}));
     return S;
   }
