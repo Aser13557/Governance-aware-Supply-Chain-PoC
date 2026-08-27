@@ -1,0 +1,1 @@
+Error: endorsement failure during invoke. response: status:500 message:"REJECTED [duplicate]: eventID \"D1\" is already anchored; anchored headers are immutable" 

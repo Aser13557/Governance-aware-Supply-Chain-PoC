@@ -1,0 +1,19 @@
+[
+  {
+    "disputeID": "DSP-1",
+    "eventIDs": [
+      "TR1"
+    ],
+    "state": "resolved",
+    "openedBy": "Org2MSP",
+    "openedAt": "2026-08-27T20:31:21Z",
+    "rationaleHash": "c9090f1c3f05d762aaffb9f36774d812038b57984c21cdcfad8490fe9ce2dbdd",
+    "policyVersion": "v2.0",
+    "policyHash": "6714a9706aad8a0c87b69920315a99306d3138ebfac35799aad99cc0917441d8",
+    "outcome": "resolved: handover time corrected in the source system; header stands",
+    "resolutionHash": "3f3a02bb2fd3b47823b1b8e130d5a62b8731c0e34367cb56faaba51b9b068d1e",
+    "resolvedBy": "Org1MSP",
+    "resolvedAt": "2026-08-27T20:31:26Z",
+    "cycleSeconds": 5
+  }
+]

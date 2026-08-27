@@ -1,0 +1,1 @@
+Error: endorsement failure during invoke. response: status:500 message:"INVARIANT VIOLATION [quantity conservation]: input asset \"LOT-D\" is recorded in \"KG\" but the manifest declares \"L\"; quantities in different units cannot be balanced" 
