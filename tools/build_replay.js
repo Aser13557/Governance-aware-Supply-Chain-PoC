@@ -12,6 +12,13 @@ const readTxt = (f) => { try { return fs.readFileSync(path.join(R, f), 'utf8').t
 const ev = (id) => readJSON(path.join('events', id + '.json'));
 const rej = (id) => readTxt(path.join('rejections', id + '.txt'));
 const short = (h) => (h ? h.slice(0, 6) + '...' + h.slice(-5) : '-');
+// Several messages state the submission time. Every beat carries an `at` key
+// explicitly - a string when the artifacts record a time, null when they do
+// not - so the console never has to invent one.
+const timeFrom = (msg) => {
+  const m = (msg || '').match(/\b(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\b/);
+  return m ? m[1] : null;
+};
 
 const SOURCE = {
   C1: 'ERP', C2: 'ERP', T1: 'MES', TR1: 'TMS/WMS', V1: 'LIMS', R1: 'Retailer system', TR3: 'TMS/WMS',
@@ -61,6 +68,7 @@ const submit = (id) => {
   return {
     kind: 'submit', id, type: h.eventType, asset: h.assetID, actor: h.actorOrg,
     source: SOURCE[id] || '-', preds: h.predecessorIDs || [], checks: checksFor(h),
+    at: h.boundAt, opAt: h.timestamp,
     bind: h.policyVersion, bindHash: short(h.policyHash), after: AFTER[id] || '',
     fx: FX[id] ? { asset: FX[id] } : undefined,
   };
@@ -71,7 +79,10 @@ const submit = (id) => {
 const reject = (id, type, asset, actor, file) => {
   const err = readTxt(file ? file : path.join('rejections', id + '.txt'));
   if (!err) return null;
-  return { kind: 'reject', id, type, asset, actor, source: SOURCE[id] || '-', checks: [['schema', 'ok']], err };
+  // Several rejection messages state the submission time; use it where present
+  // rather than inventing one. Where absent the beat carries no time at all.
+  return { kind: 'reject', id, type, asset, actor, at: timeFrom(err),
+           source: SOURCE[id] || '-', checks: [['schema', 'ok']], err };
 };
 
 const policies = (() => {
@@ -88,7 +99,8 @@ const govBeat = (v, note) => {
 /* ── S1 ─────────────────────────────────────────────────────────────────── */
 const S1 = [{ kind: 'info', text: 'S1 - recall investigation, lot LOT-C. Four source systems, one validation path.' }];
 const tot = readTxt('S0_totality_rejection.txt');
-if (tot) S1.push({ kind: 'reject', id: 'C1', type: 'Create', asset: 'LOT-A', actor: 'Producer', source: 'ERP', checks: [['schema', 'ok']], err: tot });
+if (tot) S1.push({ kind: 'reject', id: 'C1', type: 'Create', asset: 'LOT-A', actor: 'Producer',
+  at: timeFrom(tot), source: 'ERP', checks: [['schema', 'ok']], err: tot });
 const g1 = govBeat('v1.0', 'anchored by the consortium admin');
 if (g1) S1.push(g1);
 ['C1', 'C2', 'T1'].forEach((id) => { const b = submit(id); if (b) S1.push(b); });
@@ -215,11 +227,17 @@ const surf = readJSON('S4_validation_surface.json');
 const S4 = [{ kind: 'info', text: 'S4 - validation surface: every admission check the chaincode performs, each with the rejection that demonstrates it.' }];
 if (surf) {
   surf.rows.forEach((x) => S4.push({ kind: 'reject', id: x.evidence.replace(/\.txt$/, ''),
-    type: x.condition, asset: '-', actor: '-', source: x.source,
+    type: x.condition, asset: '-', actor: '-', source: x.source, at: timeFrom(x.message),
     checks: [['reached this check', 'ok']], err: x.message || `[${x.tag}] NOT CAPTURED` }));
   S4.push({ kind: 'claim', text: `<b>Nothing claimed but undemonstrated.</b> ${surf.demonstrated} of ${surf.totalChecks} admission checks produced a rejection carrying that check's own tag.` });
 }
 
+// Every beat declares its time explicitly. Absence of a recorded time is
+// expressed as null, never as a missing key, so the console cannot silently
+// substitute the demo clock for real data.
+for (const beats of [S1, S2, S3, S4, S5]) {
+  for (const b of beats) if (!('at' in b)) b.at = b.ef || null;
+}
 const out = { generatedAt: new Date().toISOString(), source: 'Track A prototype run',
   scenarios: { S1, S2, S3, S4, S5 } };
 fs.writeFileSync(path.join(R, 'replay.json'), JSON.stringify(out, null, 2));
