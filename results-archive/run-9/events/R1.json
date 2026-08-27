@@ -1,0 +1,16 @@
+{
+  "eventID": "R1",
+  "eventType": "Recall",
+  "assetID": "LOT-C",
+  "actorOrg": "Retailer",
+  "timestamp": "2026-07-20T10:22:00Z",
+  "predecessorIDs": [
+    "V1"
+  ],
+  "payloadHash": "240be7de6529e672d31cdc94b7711cdba54eb749ed237136ad8395632be75cf1",
+  "schemaID": "scmt-header-v1",
+  "actorSignature": "fabric-msp:Org1MSP;id:eDUwOTo6Q049b3JnMWFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMS5leGFtcGxlLmNvbSxPPW9yZzEuZXhhbXBsZS5jb20sTD1EdXJoYW0sU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUw==",
+  "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+  "policyVersion": "v1.0",
+  "boundAt": "2026-08-27T19:58:30Z"
+}

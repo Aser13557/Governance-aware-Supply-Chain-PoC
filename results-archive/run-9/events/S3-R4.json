@@ -1,0 +1,16 @@
+{
+  "eventID": "S3-R4",
+  "eventType": "Verify",
+  "assetID": "LOT-E",
+  "actorOrg": "Laboratory",
+  "timestamp": "2026-07-20T09:16:00Z",
+  "predecessorIDs": [
+    "S3-R3"
+  ],
+  "payloadHash": "68ca90e400510f8d19bf0ca55839e52240f887cb1c166fe261747ade753182b9",
+  "schemaID": "scmt-header-v1",
+  "actorSignature": "fabric-msp:Org2MSP;id:eDUwOTo6Q049b3JnMmFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMi5leGFtcGxlLmNvbSxPPW9yZzIuZXhhbXBsZS5jb20sTD1IdXJzbGV5LFNUPUhhbXBzaGlyZSxDPVVL",
+  "policyHash": "6714a9706aad8a0c87b69920315a99306d3138ebfac35799aad99cc0917441d8",
+  "policyVersion": "v2.0",
+  "boundAt": "2026-08-27T19:59:21Z"
+}
