@@ -1,0 +1,1 @@
+audit pack for LOT-C: 622 ms (7 events, 7 payload verifications)

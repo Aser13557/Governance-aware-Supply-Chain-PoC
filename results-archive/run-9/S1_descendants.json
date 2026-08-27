@@ -1,0 +1,10 @@
+{
+  "assetID": "LOT-A",
+  "descendants": [
+    "LOT-C"
+  ],
+  "count": 1,
+  "viaEvents": [
+    "T1"
+  ]
+}

@@ -1,0 +1,1 @@
+GOVERNANCE REJECTION [change control]: ClearRecall is restricted to the authority designated by policy v1.0 (Org1MSP); caller is Org2MSP

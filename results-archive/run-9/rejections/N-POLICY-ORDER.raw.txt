@@ -1,0 +1,1 @@
+Error: endorsement failure during invoke. response: status:500 message:"GOVERNANCE REJECTION [ordering]: effectiveFrom 2026-08-27T20:29:35Z must be strictly after existing version v3.0 (2026-08-27T20:59:32Z); policy supersession is prospective" 

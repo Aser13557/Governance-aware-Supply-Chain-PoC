@@ -1,0 +1,1 @@
+REJECTED [duplicate]: eventID "D1" is already anchored; anchored headers are immutable

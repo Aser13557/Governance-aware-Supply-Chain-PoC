@@ -1,0 +1,1 @@
+Error: endorsement failure during invoke. response: status:500 message:"GOVERNANCE REJECTION [change control]: ResolveDispute is restricted to the authority designated by policy v2.0 (Org1MSP); caller is Org2MSP" 
