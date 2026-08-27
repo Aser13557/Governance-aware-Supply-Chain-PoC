@@ -1,1 +1,0 @@
-Error: endorsement failure during invoke. response: status:500 message:"GOVERNANCE REJECTION [change control]: AnchorPolicy is restricted to the consortium-admin identity (Org1MSP); caller is Org2MSP" 

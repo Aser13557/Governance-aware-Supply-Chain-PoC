@@ -1,3 +1,0 @@
-time-to-trace      : 3900 s (D1 -> TD2)
-audit hand-offs    : 2 (Producer -> Producer -> Laboratory -> Distributor)
-dispute cycle time : not instrumented

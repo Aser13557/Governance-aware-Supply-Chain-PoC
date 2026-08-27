@@ -1,1 +1,0 @@
-GOVERNANCE REJECTION [change control]: ClearRecall is restricted to the consortium-admin identity (Org1MSP); caller is Org2MSP

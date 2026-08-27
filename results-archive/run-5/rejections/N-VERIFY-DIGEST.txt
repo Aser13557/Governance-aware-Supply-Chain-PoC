@@ -1,1 +1,0 @@
-INVARIANT VIOLATION [verification integrity]: a Verify event must reference a well-formed attestation payload digest; got "not-a-digest"
