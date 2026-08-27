@@ -12,11 +12,18 @@ const readTxt = (f) => { try { return fs.readFileSync(path.join(R, f), 'utf8').t
 const ev = (id) => readJSON(path.join('events', id + '.json'));
 const rej = (id) => readTxt(path.join('rejections', id + '.txt'));
 const short = (h) => (h ? h.slice(0, 6) + '...' + h.slice(-5) : '-');
-// Several messages state the submission time. Every beat carries an `at` key
-// explicitly - a string when the artifacts record a time, null when they do
-// not - so the console never has to invent one.
+// Every beat carries an `at` key explicitly - a string where the artifacts
+// record when the event happened, null where they do not - so the console
+// never has to invent one.
+//
+// Only the totality message states a submission time. Other rejection messages
+// quote policy values: a refused validity start, a scheduled version's start,
+// an override deadline. Those are not when the attempt occurred, so matching
+// any timestamp in the message would put values from the wrong axis on the
+// timeline. The pattern is therefore anchored to the phrase that names a
+// submission time, and nothing else.
 const timeFrom = (msg) => {
-  const m = (msg || '').match(/\b(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\b/);
+  const m = (msg || '').match(/submission time (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)/);
   return m ? m[1] : null;
 };
 
@@ -237,6 +244,30 @@ if (surf) {
 // substitute the demo clock for real data.
 for (const beats of [S1, S2, S3, S4, S5]) {
   for (const b of beats) if (!('at' in b)) b.at = b.ef || null;
+}
+
+// A scenario that anchors no policy of its own still runs under one. Without
+// this the console would report no policy in force while the same log shows
+// submissions being bound to it. The opening beat therefore carries the policy
+// that governed the scenario's first accepted submission.
+for (const beats of [S1, S2, S3, S4, S5]) {
+  if (!beats.length || beats[0].kind !== 'info') continue;
+  const firstBound = beats.find((b) => b.kind === 'submit' && b.bind);
+  const firstGov = beats.find((b) => b.kind === 'gov' && b.act === 'AnchorPolicy');
+  const firstRef = beats.find((b) => b.kind === 'gov' && b.v);
+  if (firstGov) continue;                       // the scenario shows the anchoring itself
+  if (firstBound) { beats[0].pol = firstBound.bind; beats[0].polHash = firstBound.bindHash; }
+  else if (firstRef) { beats[0].pol = firstRef.v; beats[0].polHash = firstRef.hash; }
+  else {
+    // A scenario made entirely of refusals records no binding of its own, so
+    // the policy it ran under is taken from the registry: the last version
+    // whose validity had begun by the time the feed was produced. Scheduled
+    // versions not yet in force are correctly excluded by the same test.
+    const at = new Date().toISOString();
+    const inForce = policies.filter((x) => x.effectiveFrom <= at)
+      .sort((a, b) => (a.effectiveFrom < b.effectiveFrom ? -1 : 1)).pop();
+    if (inForce) { beats[0].pol = inForce.version; beats[0].polHash = short(inForce.hash); }
+  }
 }
 const out = { generatedAt: new Date().toISOString(), source: 'Track A prototype run',
   scenarios: { S1, S2, S3, S4, S5 } };
