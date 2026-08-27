@@ -1,0 +1,30 @@
+{
+  "assetID": "LOT-C",
+  "queriedEvent": "TR3",
+  "queriedEventTime": "2026-07-20T11:00:00Z",
+  "earliestCreate": "C1",
+  "earliestCreateTime": "2026-07-20T09:00:00Z",
+  "timeToTraceSeconds": 7200,
+  "auditHandoffs": 4,
+  "pathEvents": [
+    "C1",
+    "T1",
+    "TR1",
+    "V1",
+    "R1",
+    "TR3"
+  ],
+  "pathOrganizations": [
+    "Producer",
+    "Processor",
+    "Processor",
+    "Laboratory",
+    "Retailer",
+    "Carrier"
+  ],
+  "queriedEventRule": "most recent event on the lineage of the queried asset",
+  "pathRule": "shortest predecessor chain from the queried event to a Create; earliest Create preferred among equals",
+  "disputeCycleSeconds": -1,
+  "disputeCycleReported": false,
+  "disputesOnPath": []
+}

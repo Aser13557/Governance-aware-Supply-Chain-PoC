@@ -1,0 +1,1309 @@
+{
+  "generatedAt": "2026-08-27T19:18:13.612Z",
+  "source": "Track A prototype run",
+  "scenarios": {
+    "S1": [
+      {
+        "kind": "info",
+        "text": "S1 - recall investigation, lot LOT-C. Four source systems, one validation path."
+      },
+      {
+        "kind": "reject",
+        "id": "C1",
+        "type": "Create",
+        "asset": "LOT-A",
+        "actor": "Producer",
+        "source": "ERP",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [totality]: no governance policy is active at submission time 2026-08-27T19:15:59Z; every accepted header must bind exactly one policy hash"
+      },
+      {
+        "kind": "gov",
+        "act": "AnchorPolicy",
+        "v": "v1.0",
+        "hash": "c25384...2ccbe",
+        "ef": "2026-08-27T19:16:06Z",
+        "note": "anchored by the consortium admin - tolerance 0.5, distinct attestor false"
+      },
+      {
+        "kind": "submit",
+        "id": "C1",
+        "type": "Create",
+        "asset": "LOT-A",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "quantity declared 600 KG",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "lot LOT-A registered, 600 KG, custodian Producer",
+        "fx": {
+          "asset": [
+            "LOT-A",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "C2",
+        "type": "Create",
+        "asset": "LOT-B",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "quantity declared 400 KG",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "lot LOT-B registered, 400 KG, custodian Producer",
+        "fx": {
+          "asset": [
+            "LOT-B",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "T1",
+        "type": "Transform",
+        "asset": "LOT-C",
+        "actor": "Processor",
+        "source": "MES",
+        "preds": [
+          "C1",
+          "C2"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {C1, C2}",
+            "ok"
+          ],
+          [
+            "availability + units ok",
+            "ok"
+          ],
+          [
+            "quantity conservation: inputs 1000 = outputs 1000 KG within policy tolerance",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "LOT-C derived from LOT-A + LOT-B; inputs consumed",
+        "fx": {
+          "asset": [
+            "LOT-C",
+            "Processor",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "reject",
+        "id": "N-CONSUMED",
+        "type": "Transfer",
+        "asset": "LOT-A",
+        "actor": "Producer",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "REJECTED [asset]: asset \"LOT-A\" has been fully consumed by a transformation and can no longer be transferred"
+      },
+      {
+        "kind": "submit",
+        "id": "TR1",
+        "type": "Transfer",
+        "asset": "LOT-C",
+        "actor": "Processor",
+        "source": "TMS/WMS",
+        "preds": [
+          "T1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {T1}",
+            "ok"
+          ],
+          [
+            "custody continuity: submitter is the current custodian (Processor)",
+            "ok"
+          ],
+          [
+            "recall lock: no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "custody -> Carrier",
+        "fx": {
+          "asset": [
+            "LOT-C",
+            "Carrier",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "V1",
+        "type": "Verify",
+        "asset": "LOT-C",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "TR1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {TR1}",
+            "ok"
+          ],
+          [
+            "verification integrity: attestation 245d17...faed1",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "attestation linked to LOT-C"
+      },
+      {
+        "kind": "reject",
+        "id": "N-CUSTODY",
+        "type": "Transfer",
+        "asset": "LOT-C",
+        "actor": "Retailer",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [custody continuity]: Transfer of asset \"LOT-C\" submitted by \"Retailer\", but current custodian is \"Carrier\"; only the current custodian may record a transfer"
+      },
+      {
+        "kind": "submit",
+        "id": "R1",
+        "type": "Recall",
+        "asset": "LOT-C",
+        "actor": "Retailer",
+        "source": "Retailer system",
+        "preds": [
+          "V1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {V1}",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "RECALL LOCK SET",
+        "fx": {
+          "asset": [
+            "LOT-C",
+            "Carrier",
+            true
+          ]
+        }
+      },
+      {
+        "kind": "reject",
+        "id": "N-RECALL-TRANSFER",
+        "type": "Transfer",
+        "asset": "LOT-C",
+        "actor": "Carrier",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [recall lock]: asset \"LOT-C\" is under recall; further transfers are blocked until the recall is cleared"
+      },
+      {
+        "kind": "reject",
+        "id": "N-RECALL-TRANSFORM",
+        "type": "Transform",
+        "asset": "LOT-Z",
+        "actor": "Carrier",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [recall lock]: asset \"LOT-C\" is under recall and may not be an input to a transformation until cleared"
+      },
+      {
+        "kind": "reject",
+        "id": "N-CLEAR-NONADMIN",
+        "type": "Governance",
+        "asset": "LOT-C",
+        "actor": "Org2MSP",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [change control]: ClearRecall is restricted to the authority designated by policy v1.0 (Org1MSP); caller is Org2MSP"
+      },
+      {
+        "kind": "gov",
+        "act": "ClearRecall",
+        "v": "v1.0",
+        "hash": "c25384...2ccbe",
+        "ef": "2026-08-27T19:16:52Z",
+        "policyUnchanged": true,
+        "note": "recall on LOT-C lifted by Org1MSP, bound to the policy then in force: root cause traced to a labelling error; lot released"
+      },
+      {
+        "kind": "submit",
+        "id": "TR3",
+        "type": "Transfer",
+        "asset": "LOT-C",
+        "actor": "Carrier",
+        "source": "TMS/WMS",
+        "preds": [
+          "R1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {R1}",
+            "ok"
+          ],
+          [
+            "custody continuity: submitter is the current custodian (Carrier)",
+            "ok"
+          ],
+          [
+            "recall lock: no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "custody -> Retailer (after clearance)",
+        "fx": {
+          "asset": [
+            "LOT-C",
+            "Retailer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "query",
+        "label": "GetLineageByAsset(\"LOT-C\")",
+        "lines": [
+          "nodes 7 - edges 6 - origins [C1, C2]",
+          "graph: C1->T1, C2->T1, R1->TR3, T1->TR1, TR1->V1, V1->R1"
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "AffectedDescendants(\"LOT-A\")",
+        "lines": [
+          "derived lots: [LOT-C] via [T1]"
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "GetTraceMetrics(\"LOT-C\")",
+        "lines": [
+          "time-to-trace 7200s (C1 -> TR3)",
+          "audit hand-offs 4: Producer -> Processor -> Processor -> Laboratory -> Retailer -> Carrier"
+        ]
+      },
+      {
+        "kind": "claim",
+        "text": "<b>Agnosticism, and invariants that actually bite.</b> Four enterprise systems fed one validation path, while four separate rejections show custody, consumption and the recall lock being enforced - and the lock lifting only on a recorded governance act."
+      }
+    ],
+    "S2": [
+      {
+        "kind": "info",
+        "text": "S2 - regulatory audit of lot LOT-D (four-event lineage, no recall)."
+      },
+      {
+        "kind": "submit",
+        "id": "D1",
+        "type": "Create",
+        "asset": "LOT-D",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "quantity declared 500 KG",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "lot LOT-D registered, 500 KG",
+        "fx": {
+          "asset": [
+            "LOT-D",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "TD1",
+        "type": "Transfer",
+        "asset": "LOT-D",
+        "actor": "Producer",
+        "source": "TMS",
+        "preds": [
+          "D1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {D1}",
+            "ok"
+          ],
+          [
+            "custody continuity: submitter is the current custodian (Producer)",
+            "ok"
+          ],
+          [
+            "recall lock: no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "custody -> Distributor",
+        "fx": {
+          "asset": [
+            "LOT-D",
+            "Distributor",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "VD1",
+        "type": "Verify",
+        "asset": "LOT-D",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "TD1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {TD1}",
+            "ok"
+          ],
+          [
+            "verification integrity: attestation 10e033...b2fdd",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "certificate linked to LOT-D"
+      },
+      {
+        "kind": "submit",
+        "id": "TD2",
+        "type": "Transfer",
+        "asset": "LOT-D",
+        "actor": "Distributor",
+        "source": "TMS",
+        "preds": [
+          "VD1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {VD1}",
+            "ok"
+          ],
+          [
+            "custody continuity: submitter is the current custodian (Distributor)",
+            "ok"
+          ],
+          [
+            "recall lock: no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "custody -> Retailer",
+        "fx": {
+          "asset": [
+            "LOT-D",
+            "Retailer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "query",
+        "label": "auditPack(\"LOT-D\", role=authority)",
+        "lines": [
+          "4 ordered headers [D1 -> TD1 -> VD1 -> TD2], each with its identity attestation",
+          "policy refs: v1.0 - hash c25384...2ccbe",
+          "payload verification: 4/4 PASS",
+          "generated in 580 ms"
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "indicators (model 3.7)",
+        "lines": [
+          "time-to-trace 3900s - audit hand-offs 2",
+          "path: Producer -> Producer -> Laboratory -> Distributor",
+          "dispute cycle time: no resolved dispute on this lineage"
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "passportView(\"LOT-D\")",
+        "lines": [
+          "custodian Retailer - 500 KG remaining - attestations [VD1] - recall none - policy v1.0"
+        ]
+      },
+      {
+        "kind": "tamper",
+        "lines": [
+          [
+            "one byte of the stored attestation payload is modified, then the pack is re-verified",
+            "note"
+          ],
+          [
+            "after tampering   : recomputed 80068bf4f70acd5e9e6fbacbb444fa70ea1ad057b5388acbd77ad87b0e0575f5 - verified false",
+            "bad"
+          ],
+          [
+            "tamper detected from anchored evidence alone",
+            "ok"
+          ]
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "interoperability exports (EPCIS 2.0 and PROV-O)",
+        "lines": [
+          "7 anchored events exported to both vocabularies",
+          "transformations map to TransformationEvent; lineage links map to PROV derivation relations",
+          "every exported event carries the policy reference under which it was admitted"
+        ]
+      },
+      {
+        "kind": "claim",
+        "text": "<b>A regulator-ready bundle, verified without disclosure.</b> Ordered headers, identity attestations, policy references and the model's own indicators in 580 ms - and a silent payload change exposed by the anchored digests."
+      }
+    ],
+    "S3": [
+      {
+        "kind": "info",
+        "text": "S3 - policy update: per-record binding, and the change in validation behaviour that the binding records."
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R1",
+        "type": "Create",
+        "asset": "LOT-E",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "quantity declared 250 KG",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "lot LOT-E registered",
+        "fx": {
+          "asset": [
+            "LOT-E",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R2",
+        "type": "Verify",
+        "asset": "LOT-E",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "S3-R1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {S3-R1}",
+            "ok"
+          ],
+          [
+            "verification integrity: attestation 3ccf2c...cf601",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": ""
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R3",
+        "type": "Verify",
+        "asset": "LOT-E",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "S3-R2"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {S3-R2}",
+            "ok"
+          ],
+          [
+            "verification integrity: attestation 156f02...9f4a5",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": ""
+      },
+      {
+        "kind": "submit",
+        "id": "S3-P1",
+        "type": "Create",
+        "asset": "LOT-F",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "quantity declared 1000 KG",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "lot LOT-F registered, 1000 KG",
+        "fx": {
+          "asset": [
+            "LOT-F",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "S3-P2",
+        "type": "Transform",
+        "asset": "LOT-G",
+        "actor": "Producer",
+        "source": "MES",
+        "preds": [
+          "S3-P1"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {S3-P1}",
+            "ok"
+          ],
+          [
+            "availability + units ok",
+            "ok"
+          ],
+          [
+            "quantity conservation: inputs 1000 = outputs 999.6 KG within policy tolerance",
+            "ok"
+          ]
+        ],
+        "bind": "v1.0",
+        "bindHash": "c25384...2ccbe",
+        "after": "LOT-G produced, 999.6 KG"
+      },
+      {
+        "kind": "gov",
+        "act": "AnchorPolicy",
+        "v": "v2.0",
+        "hash": "6714a9...441d8",
+        "ef": "2026-08-27T19:17:35Z",
+        "note": "supersession is prospective; bindings already made are untouched - tolerance 0.25, distinct attestor true"
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R4",
+        "type": "Verify",
+        "asset": "LOT-E",
+        "actor": "Laboratory",
+        "source": "LIMS",
+        "preds": [
+          "S3-R3"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {S3-R3}",
+            "ok"
+          ],
+          [
+            "verification integrity: attestation 68ca90...182b9",
+            "ok"
+          ]
+        ],
+        "bind": "v2.0",
+        "bindHash": "6714a9...441d8",
+        "after": ""
+      },
+      {
+        "kind": "submit",
+        "id": "S3-R5",
+        "type": "Transfer",
+        "asset": "LOT-E",
+        "actor": "Producer",
+        "source": "TMS",
+        "preds": [
+          "S3-R4"
+        ],
+        "checks": [
+          [
+            "schema + predecessors {S3-R4}",
+            "ok"
+          ],
+          [
+            "custody continuity: submitter is the current custodian (Producer)",
+            "ok"
+          ],
+          [
+            "recall lock: no active recall",
+            "ok"
+          ]
+        ],
+        "bind": "v2.0",
+        "bindHash": "6714a9...441d8",
+        "after": "custody -> Warehouse",
+        "fx": {
+          "asset": [
+            "LOT-E",
+            "Warehouse",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "submit",
+        "id": "S3-P3",
+        "type": "Create",
+        "asset": "LOT-H",
+        "actor": "Producer",
+        "source": "ERP",
+        "preds": [],
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ],
+          [
+            "quantity declared 1000 KG",
+            "ok"
+          ]
+        ],
+        "bind": "v2.0",
+        "bindHash": "6714a9...441d8",
+        "after": "lot LOT-H registered, 1000 KG",
+        "fx": {
+          "asset": [
+            "LOT-H",
+            "Producer",
+            false
+          ]
+        }
+      },
+      {
+        "kind": "reject",
+        "id": "S3-P4",
+        "type": "Transform",
+        "asset": "LOT-I",
+        "actor": "Producer",
+        "source": "MES",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [quantity conservation]: inputs total 1000.0000 KG, outputs total 999.6000 KG, difference 0.4000 exceeds the tolerance 0.2500 set by policy v2.0"
+      },
+      {
+        "kind": "reject",
+        "id": "N-VERIFY-SELF",
+        "type": "Verify",
+        "asset": "LOT-E",
+        "actor": "Warehouse",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [verification integrity]: policy v2.0 requires an attestation from a party other than the current custodian, but \"Warehouse\" holds custody of asset \"LOT-E\""
+      },
+      {
+        "kind": "query",
+        "label": "per-record binding verification",
+        "lines": [
+          "S3-R1 - boundAt 2026-08-27T19:17:13Z - v1.0 - c25384...2ccbe - correct",
+          "S3-R2 - boundAt 2026-08-27T19:17:16Z - v1.0 - c25384...2ccbe - correct",
+          "S3-R3 - boundAt 2026-08-27T19:17:19Z - v1.0 - c25384...2ccbe - correct",
+          "S3-R4 - boundAt 2026-08-27T19:17:40Z - v2.0 - 6714a9...441d8 - correct",
+          "S3-R5 - boundAt 2026-08-27T19:17:43Z - v2.0 - 6714a9...441d8 - correct"
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "auditor recomputation",
+        "lines": [
+          "policies/policy_v1.md: hash reproduces, parameters faithful to the artifact",
+          "policies/policy_v2.md: hash reproduces, parameters faithful to the artifact",
+          "which ruleset governed each record is recoverable from the record and the registry alone"
+        ]
+      },
+      {
+        "kind": "query",
+        "label": "policy-driven validation behaviour",
+        "lines": [
+          "declared imbalance 0.4 KG",
+          "under v1.0 (tolerance 0.5): accepted",
+          "under v2.0 (tolerance 0.25): rejected",
+          "the deciding parameter came from the registry, not from the submitter"
+        ]
+      },
+      {
+        "kind": "claim",
+        "text": "<b>The mechanism, doing work.</b> The rulebook changed and the system behaved differently - an identical submission admitted under one regime and refused under the next - while every record still proves which regime judged it."
+      }
+    ],
+    "S4": [
+      {
+        "kind": "info",
+        "text": "S4 - validation surface: every admission check the chaincode performs, each with the rejection that demonstrates it."
+      },
+      {
+        "kind": "reject",
+        "id": "S0_totality_rejection",
+        "type": "no governance policy in force at submission",
+        "asset": "-",
+        "actor": "-",
+        "source": "architecture 5.1",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [totality]: no governance policy is active at submission time 2026-08-27T19:15:59Z; every accepted header must bind exactly one policy hash"
+      },
+      {
+        "kind": "reject",
+        "id": "N-CUSTODY",
+        "type": "transfer by a party that is not the current custodian",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.6",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [custody continuity]: Transfer of asset \"LOT-C\" submitted by \"Retailer\", but current custodian is \"Carrier\"; only the current custodian may record a transfer"
+      },
+      {
+        "kind": "reject",
+        "id": "N-RECALL-TRANSFER",
+        "type": "transfer of a lot under recall",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.6",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [recall lock]: asset \"LOT-C\" is under recall; further transfers are blocked until the recall is cleared"
+      },
+      {
+        "kind": "reject",
+        "id": "N-RECALL-TRANSFORM",
+        "type": "transformation consuming a lot under recall",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.6 / 3.8",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [recall lock]: asset \"LOT-C\" is under recall and may not be an input to a transformation until cleared"
+      },
+      {
+        "kind": "reject",
+        "id": "N-QTY-TOLERANCE",
+        "type": "imbalance beyond the tolerance in force",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.6",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [quantity conservation]: inputs total 100.0000 KG, outputs total 90.0000 KG, difference 10.0000 exceeds the tolerance 0.2500 set by policy v2.0"
+      },
+      {
+        "kind": "reject",
+        "id": "N-QTY-AVAILABLE",
+        "type": "consuming more of a lot than remains",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.6",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [quantity conservation]: transformation consumes 5000.0000 KG of asset \"LOT-D\" but only 500.0000 KG remains"
+      },
+      {
+        "kind": "reject",
+        "id": "N-QTY-UNIT",
+        "type": "inputs and outputs in different units",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.6",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [quantity conservation]: input asset \"LOT-D\" is recorded in \"KG\" but the manifest declares \"L\"; quantities in different units cannot be balanced"
+      },
+      {
+        "kind": "reject",
+        "id": "S3-P4",
+        "type": "imbalance admissible under v1.0, refused under v2.0",
+        "asset": "-",
+        "actor": "-",
+        "source": "architecture R4",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [quantity conservation]: inputs total 1000.0000 KG, outputs total 999.6000 KG, difference 0.4000 exceeds the tolerance 0.2500 set by policy v2.0"
+      },
+      {
+        "kind": "reject",
+        "id": "N-VERIFY-DIGEST",
+        "type": "malformed attestation digest",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.6",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [verification integrity]: a Verify event must reference a well-formed attestation payload digest; got \"not-a-digest\""
+      },
+      {
+        "kind": "reject",
+        "id": "N-VERIFY-SELF",
+        "type": "self-attestation by the current custodian, refused under v2.0",
+        "asset": "-",
+        "actor": "-",
+        "source": "architecture R4",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "INVARIANT VIOLATION [verification integrity]: policy v2.0 requires an attestation from a party other than the current custodian, but \"Warehouse\" holds custody of asset \"LOT-E\""
+      },
+      {
+        "kind": "reject",
+        "id": "N-CONSUMED",
+        "type": "transfer of a fully consumed lot",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.6 (derived)",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "REJECTED [asset]: asset \"LOT-A\" has been fully consumed by a transformation and can no longer be transferred"
+      },
+      {
+        "kind": "reject",
+        "id": "N-SCHEMA-TYPE",
+        "type": "event type outside the five-event vocabulary",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.2",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "REJECTED [schema]: eventType \"Inspect\" is not one of Create|Transform|Transfer|Verify|Recall"
+      },
+      {
+        "kind": "reject",
+        "id": "N-PREDECESSOR",
+        "type": "predecessor that was never anchored",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.3",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "REJECTED [lineage]: predecessor event \"NO-SUCH-EVENT\" does not exist"
+      },
+      {
+        "kind": "reject",
+        "id": "N-DUPLICATE",
+        "type": "re-anchoring an existing event identifier",
+        "asset": "-",
+        "actor": "-",
+        "source": "immutability",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "REJECTED [duplicate]: eventID \"D1\" is already anchored; anchored headers are immutable"
+      },
+      {
+        "kind": "reject",
+        "id": "N-POLICY-NONADMIN",
+        "type": "policy anchored by a non-admin organization",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.5",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [change control]: AnchorPolicy is restricted to the authority designated for the next version (Org1MSP); caller is Org2MSP"
+      },
+      {
+        "kind": "reject",
+        "id": "N-CLEAR-NONADMIN",
+        "type": "recall cleared by a non-admin organization",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.5",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [change control]: ClearRecall is restricted to the authority designated by policy v1.0 (Org1MSP); caller is Org2MSP"
+      },
+      {
+        "kind": "reject",
+        "id": "N-POLICY-RETRO",
+        "type": "validity start earlier than the anchoring time",
+        "asset": "-",
+        "actor": "-",
+        "source": "architecture 5.1",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [retroactivity]: effectiveFrom 2026-08-27T19:07:51Z precedes the anchoring time 2026-08-27T19:17:51Z; a policy version may not be declared in force before it was anchored"
+      },
+      {
+        "kind": "reject",
+        "id": "N-POLICY-ORDER",
+        "type": "validity start at or before a version already scheduled",
+        "asset": "-",
+        "actor": "-",
+        "source": "architecture 5.1",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [ordering]: effectiveFrom 2026-08-27T19:47:54Z must be strictly after existing version v3.0 (2026-08-27T20:17:51Z); policy supersession is prospective"
+      },
+      {
+        "kind": "reject",
+        "id": "N-MEMBER-SUSPENDED",
+        "type": "submission by a suspended organization",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.5; architecture 5.B",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [membership]: organization \"Warehouse\" is suspended and may not submit evidence"
+      },
+      {
+        "kind": "reject",
+        "id": "N-MEMBER-NONADMIN",
+        "type": "organization admitted by a non-authorised identity",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.5; architecture 5.B",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [change control]: AdmitOrganization is restricted to the authority designated by policy v2.0 (Org1MSP); caller is Org2MSP"
+      },
+      {
+        "kind": "reject",
+        "id": "N-DISPUTE-NONADMIN",
+        "type": "dispute resolved by a non-authorised identity",
+        "asset": "-",
+        "actor": "-",
+        "source": "model 3.5; architecture 5.C",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [change control]: ResolveDispute is restricted to the authority designated by policy v2.0 (Org1MSP); caller is Org2MSP"
+      },
+      {
+        "kind": "reject",
+        "id": "N-EMERGENCY",
+        "type": "submission inside a scope frozen by a time-bounded override",
+        "asset": "-",
+        "actor": "-",
+        "source": "architecture 5.C",
+        "checks": [
+          [
+            "reached this check",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [emergency]: submission is suspended by emergency EMG-1 (eventType \"Recall\") until 2026-08-27T19:48:06Z"
+      },
+      {
+        "kind": "claim",
+        "text": "<b>Nothing claimed but undemonstrated.</b> 22 of 22 admission checks produced a rejection carrying that check's own tag."
+      }
+    ],
+    "S5": [
+      {
+        "kind": "info",
+        "text": "S5 - the governance kit: membership, disputes, emergency overrides and tiered audit access."
+      },
+      {
+        "kind": "query",
+        "label": "MembershipRegistry()",
+        "lines": [
+          "7 organizations on record: Carrier (active), Distributor (active), Laboratory (active), Processor (active), Producer (active), Retailer (active), Warehouse (suspended)",
+          "each admission or suspension is anchored and bound to the policy then in force"
+        ]
+      },
+      {
+        "kind": "reject",
+        "id": "N-MEMBER-NONADMIN",
+        "type": "Governance",
+        "asset": "-",
+        "actor": "Org2MSP",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [change control]: AdmitOrganization is restricted to the authority designated by policy v2.0 (Org1MSP); caller is Org2MSP"
+      },
+      {
+        "kind": "reject",
+        "id": "N-MEMBER-SUSPENDED",
+        "type": "Verify",
+        "asset": "LOT-E",
+        "actor": "Warehouse",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [membership]: organization \"Warehouse\" is suspended and may not submit evidence"
+      },
+      {
+        "kind": "gov",
+        "act": "OpenDispute",
+        "v": "v2.0",
+        "hash": "6714a9...441d8",
+        "ef": "2026-08-27T19:17:57Z",
+        "policyUnchanged": true,
+        "note": "dispute DSP-1 opened over TR1 by Org2MSP; rationale off-ledger (c9090f...2dbdd)"
+      },
+      {
+        "kind": "reject",
+        "id": "N-DISPUTE-NONADMIN",
+        "type": "Governance",
+        "asset": "-",
+        "actor": "Org2MSP",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [change control]: ResolveDispute is restricted to the authority designated by policy v2.0 (Org1MSP); caller is Org2MSP"
+      },
+      {
+        "kind": "gov",
+        "act": "ResolveDispute",
+        "v": "v2.0",
+        "hash": "6714a9...441d8",
+        "ef": "2026-08-27T19:18:02Z",
+        "policyUnchanged": true,
+        "note": "DSP-1 resolved after 5s: resolved: handover time corrected in the source system; header stands; no anchored header was altered"
+      },
+      {
+        "kind": "query",
+        "label": "GetTraceMetrics after resolution",
+        "lines": [
+          "disputes on this lineage: [DSP-1]",
+          "dispute cycle time 5s - the third indicator of the model, now instrumented"
+        ]
+      },
+      {
+        "kind": "gov",
+        "act": "DeclareEmergency",
+        "v": "v2.0",
+        "hash": "6714a9...441d8",
+        "ef": "2026-08-27T19:18:06Z",
+        "policyUnchanged": true,
+        "note": "EMG-1 suspends eventType \"Recall\" until 2026-08-27T19:48:06Z; decision artifact 36c7b7...17aa3"
+      },
+      {
+        "kind": "reject",
+        "id": "N-EMERGENCY",
+        "type": "Recall",
+        "asset": "LOT-D",
+        "actor": "Retailer",
+        "source": "-",
+        "checks": [
+          [
+            "schema",
+            "ok"
+          ]
+        ],
+        "err": "GOVERNANCE REJECTION [emergency]: submission is suspended by emergency EMG-1 (eventType \"Recall\") until 2026-08-27T19:48:06Z"
+      },
+      {
+        "kind": "query",
+        "label": "audit access - three visibility tiers",
+        "lines": [
+          "public: integrity confirmed, content withheld",
+          "operator: integrity confirmed, content disclosed",
+          "authority: integrity confirmed, content disclosed",
+          "(none): integrity not shown, content withheld"
+        ]
+      },
+      {
+        "kind": "claim",
+        "text": "<b>Governance as an operating system, not a preamble.</b> Membership decides who may submit, disputes augment evidence without rewriting it, emergency overrides are time-bounded and tied to a decision artifact, and disclosure is tiered - each act anchored and bound to the policy in force."
+      }
+    ]
+  }
+}

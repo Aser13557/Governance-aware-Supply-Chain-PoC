@@ -1,0 +1,90 @@
+{
+  "scenario": "S1",
+  "asset": "LOT-C",
+  "events": [
+    {
+      "eventID": "C1",
+      "eventType": "Create",
+      "assetID": "LOT-A",
+      "actorOrg": "Producer",
+      "timestamp": "2026-07-20T09:00:00Z",
+      "boundAt": "2026-08-27T19:16:32Z",
+      "policyVersion": "v1.0",
+      "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+      "payloadHash": "9bd30e97f4a9d7e87c79cf9a7597e27095c6b2abab0e6da015b012a6e5d44258",
+      "actorSignature": "fabric-msp:Org1MSP;id:eDUwOTo6Q049b3JnMWFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMS5leGFtcGxlLmNvbSxPPW9yZzEuZXhhbXBsZS5jb20sTD1EdXJoYW0sU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUw=="
+    },
+    {
+      "eventID": "C2",
+      "eventType": "Create",
+      "assetID": "LOT-B",
+      "actorOrg": "Producer",
+      "timestamp": "2026-07-20T09:05:00Z",
+      "boundAt": "2026-08-27T19:16:35Z",
+      "policyVersion": "v1.0",
+      "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+      "payloadHash": "6c4168cfa63cb183577bba5a562910b7c9474bb28d51beba9318cfdabfb37392",
+      "actorSignature": "fabric-msp:Org1MSP;id:eDUwOTo6Q049b3JnMWFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMS5leGFtcGxlLmNvbSxPPW9yZzEuZXhhbXBsZS5jb20sTD1EdXJoYW0sU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUw=="
+    },
+    {
+      "eventID": "T1",
+      "eventType": "Transform",
+      "assetID": "LOT-C",
+      "actorOrg": "Processor",
+      "timestamp": "2026-07-20T09:41:00Z",
+      "boundAt": "2026-08-27T19:16:39Z",
+      "policyVersion": "v1.0",
+      "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+      "payloadHash": "510e04dfafa620b559983aeef6db274af2c816f497b3a256f3c22dd55a4535dc",
+      "actorSignature": "fabric-msp:Org2MSP;id:eDUwOTo6Q049b3JnMmFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMi5leGFtcGxlLmNvbSxPPW9yZzIuZXhhbXBsZS5jb20sTD1IdXJzbGV5LFNUPUhhbXBzaGlyZSxDPVVL"
+    },
+    {
+      "eventID": "TR1",
+      "eventType": "Transfer",
+      "assetID": "LOT-C",
+      "actorOrg": "Processor",
+      "timestamp": "2026-07-20T09:47:00Z",
+      "boundAt": "2026-08-27T19:16:42Z",
+      "policyVersion": "v1.0",
+      "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+      "payloadHash": "256bf3340eec855d1912c1b434dc7f3eaab0156d4a278b5bcb61d71e89c97683",
+      "actorSignature": "fabric-msp:Org2MSP;id:eDUwOTo6Q049b3JnMmFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMi5leGFtcGxlLmNvbSxPPW9yZzIuZXhhbXBsZS5jb20sTD1IdXJzbGV5LFNUPUhhbXBzaGlyZSxDPVVL"
+    },
+    {
+      "eventID": "V1",
+      "eventType": "Verify",
+      "assetID": "LOT-C",
+      "actorOrg": "Laboratory",
+      "timestamp": "2026-07-20T09:53:00Z",
+      "boundAt": "2026-08-27T19:16:45Z",
+      "policyVersion": "v1.0",
+      "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+      "payloadHash": "245d17b7cc7f0ea94bc3ebdac7fc53558e989b1b926ada6d25c60ae9226faed1",
+      "actorSignature": "fabric-msp:Org2MSP;id:eDUwOTo6Q049b3JnMmFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMi5leGFtcGxlLmNvbSxPPW9yZzIuZXhhbXBsZS5jb20sTD1IdXJzbGV5LFNUPUhhbXBzaGlyZSxDPVVL"
+    },
+    {
+      "eventID": "R1",
+      "eventType": "Recall",
+      "assetID": "LOT-C",
+      "actorOrg": "Retailer",
+      "timestamp": "2026-07-20T10:22:00Z",
+      "boundAt": "2026-08-27T19:16:48Z",
+      "policyVersion": "v1.0",
+      "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+      "payloadHash": "240be7de6529e672d31cdc94b7711cdba54eb749ed237136ad8395632be75cf1",
+      "actorSignature": "fabric-msp:Org1MSP;id:eDUwOTo6Q049b3JnMWFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMS5leGFtcGxlLmNvbSxPPW9yZzEuZXhhbXBsZS5jb20sTD1EdXJoYW0sU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUw=="
+    },
+    {
+      "eventID": "TR3",
+      "eventType": "Transfer",
+      "assetID": "LOT-C",
+      "actorOrg": "Carrier",
+      "timestamp": "2026-07-20T11:00:00Z",
+      "boundAt": "2026-08-27T19:16:55Z",
+      "policyVersion": "v1.0",
+      "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+      "payloadHash": "ba3595aada9747aa136db8186512b1338f3501dec34a0fae1b99e1118803ad5d",
+      "actorSignature": "fabric-msp:Org2MSP;id:eDUwOTo6Q049b3JnMmFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMi5leGFtcGxlLmNvbSxPPW9yZzIuZXhhbXBsZS5jb20sTD1IdXJzbGV5LFNUPUhhbXBzaGlyZSxDPVVL"
+    }
+  ]
+}

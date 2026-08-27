@@ -1,0 +1,42 @@
+{
+  "digest": "10e033499a6ef8e1968aeff843778d933c800425b82940699e64d94c766b2fdd",
+  "event": "VD1",
+  "tiers": [
+    {
+      "tier": "public",
+      "status": 403,
+      "integrityConfirmed": true,
+      "payloadDisclosed": false,
+      "message": "ACCESS DENIED [audit access]: the public lineage visibility tier may confirm integrity but may not retrieve payload content"
+    },
+    {
+      "tier": "operator",
+      "status": 200,
+      "integrityConfirmed": true,
+      "payloadDisclosed": true,
+      "message": "integrity confirmed"
+    },
+    {
+      "tier": "authority",
+      "status": 200,
+      "integrityConfirmed": true,
+      "payloadDisclosed": true,
+      "message": "integrity confirmed"
+    },
+    {
+      "tier": "(none)",
+      "status": 403,
+      "integrityConfirmed": false,
+      "payloadDisclosed": false,
+      "message": "ACCESS DENIED [audit access]: header X-Role must be one of public|operator|auditor|authority"
+    }
+  ],
+  "verdict": {
+    "publicMayConfirmIntegrityWithoutContent": true,
+    "consortiumMayRetrieveContent": true,
+    "authorityMayRetrieveContent": true,
+    "unauthenticatedRefused": true,
+    "allTiersBehaveAsSpecified": true
+  },
+  "generatedAt": "2026-08-27T19:18:13.467Z"
+}

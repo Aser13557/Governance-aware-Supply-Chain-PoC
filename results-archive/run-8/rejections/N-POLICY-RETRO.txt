@@ -1,0 +1,1 @@
+GOVERNANCE REJECTION [retroactivity]: effectiveFrom 2026-08-27T19:07:51Z precedes the anchoring time 2026-08-27T19:17:51Z; a policy version may not be declared in force before it was anchored

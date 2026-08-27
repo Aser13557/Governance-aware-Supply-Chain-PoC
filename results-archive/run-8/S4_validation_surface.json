@@ -1,0 +1,208 @@
+{
+  "totalChecks": 22,
+  "demonstrated": 22,
+  "rows": [
+    {
+      "tag": "totality",
+      "condition": "no governance policy in force at submission",
+      "source": "architecture 5.1",
+      "evidence": "S0_totality_rejection.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [totality]: no governance policy is active at submission time 2026-08-27T19:15:59Z; every accepted header must bind exactly one policy hash"
+    },
+    {
+      "tag": "custody continuity",
+      "condition": "transfer by a party that is not the current custodian",
+      "source": "model 3.6",
+      "evidence": "N-CUSTODY.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [custody continuity]: Transfer of asset \"LOT-C\" submitted by \"Retailer\", but current custodian is \"Carrier\"; only the current custodian may record a transfer"
+    },
+    {
+      "tag": "recall lock",
+      "condition": "transfer of a lot under recall",
+      "source": "model 3.6",
+      "evidence": "N-RECALL-TRANSFER.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [recall lock]: asset \"LOT-C\" is under recall; further transfers are blocked until the recall is cleared"
+    },
+    {
+      "tag": "recall lock",
+      "condition": "transformation consuming a lot under recall",
+      "source": "model 3.6 / 3.8",
+      "evidence": "N-RECALL-TRANSFORM.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [recall lock]: asset \"LOT-C\" is under recall and may not be an input to a transformation until cleared"
+    },
+    {
+      "tag": "quantity conservation",
+      "condition": "imbalance beyond the tolerance in force",
+      "source": "model 3.6",
+      "evidence": "N-QTY-TOLERANCE.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [quantity conservation]: inputs total 100.0000 KG, outputs total 90.0000 KG, difference 10.0000 exceeds the tolerance 0.2500 set by policy v2.0"
+    },
+    {
+      "tag": "quantity conservation",
+      "condition": "consuming more of a lot than remains",
+      "source": "model 3.6",
+      "evidence": "N-QTY-AVAILABLE.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [quantity conservation]: transformation consumes 5000.0000 KG of asset \"LOT-D\" but only 500.0000 KG remains"
+    },
+    {
+      "tag": "quantity conservation",
+      "condition": "inputs and outputs in different units",
+      "source": "model 3.6",
+      "evidence": "N-QTY-UNIT.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [quantity conservation]: input asset \"LOT-D\" is recorded in \"KG\" but the manifest declares \"L\"; quantities in different units cannot be balanced"
+    },
+    {
+      "tag": "quantity conservation",
+      "condition": "imbalance admissible under v1.0, refused under v2.0",
+      "source": "architecture R4",
+      "evidence": "S3-P4.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [quantity conservation]: inputs total 1000.0000 KG, outputs total 999.6000 KG, difference 0.4000 exceeds the tolerance 0.2500 set by policy v2.0"
+    },
+    {
+      "tag": "verification integrity",
+      "condition": "malformed attestation digest",
+      "source": "model 3.6",
+      "evidence": "N-VERIFY-DIGEST.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [verification integrity]: a Verify event must reference a well-formed attestation payload digest; got \"not-a-digest\""
+    },
+    {
+      "tag": "verification integrity",
+      "condition": "self-attestation by the current custodian, refused under v2.0",
+      "source": "architecture R4",
+      "evidence": "N-VERIFY-SELF.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "INVARIANT VIOLATION [verification integrity]: policy v2.0 requires an attestation from a party other than the current custodian, but \"Warehouse\" holds custody of asset \"LOT-E\""
+    },
+    {
+      "tag": "asset",
+      "condition": "transfer of a fully consumed lot",
+      "source": "model 3.6 (derived)",
+      "evidence": "N-CONSUMED.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "REJECTED [asset]: asset \"LOT-A\" has been fully consumed by a transformation and can no longer be transferred"
+    },
+    {
+      "tag": "schema",
+      "condition": "event type outside the five-event vocabulary",
+      "source": "model 3.2",
+      "evidence": "N-SCHEMA-TYPE.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "REJECTED [schema]: eventType \"Inspect\" is not one of Create|Transform|Transfer|Verify|Recall"
+    },
+    {
+      "tag": "lineage",
+      "condition": "predecessor that was never anchored",
+      "source": "model 3.3",
+      "evidence": "N-PREDECESSOR.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "REJECTED [lineage]: predecessor event \"NO-SUCH-EVENT\" does not exist"
+    },
+    {
+      "tag": "duplicate",
+      "condition": "re-anchoring an existing event identifier",
+      "source": "immutability",
+      "evidence": "N-DUPLICATE.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "REJECTED [duplicate]: eventID \"D1\" is already anchored; anchored headers are immutable"
+    },
+    {
+      "tag": "change control",
+      "condition": "policy anchored by a non-admin organization",
+      "source": "model 3.5",
+      "evidence": "N-POLICY-NONADMIN.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "GOVERNANCE REJECTION [change control]: AnchorPolicy is restricted to the authority designated for the next version (Org1MSP); caller is Org2MSP"
+    },
+    {
+      "tag": "change control",
+      "condition": "recall cleared by a non-admin organization",
+      "source": "model 3.5",
+      "evidence": "N-CLEAR-NONADMIN.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "GOVERNANCE REJECTION [change control]: ClearRecall is restricted to the authority designated by policy v1.0 (Org1MSP); caller is Org2MSP"
+    },
+    {
+      "tag": "retroactivity",
+      "condition": "validity start earlier than the anchoring time",
+      "source": "architecture 5.1",
+      "evidence": "N-POLICY-RETRO.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "GOVERNANCE REJECTION [retroactivity]: effectiveFrom 2026-08-27T19:07:51Z precedes the anchoring time 2026-08-27T19:17:51Z; a policy version may not be declared in force before it was anchored"
+    },
+    {
+      "tag": "ordering",
+      "condition": "validity start at or before a version already scheduled",
+      "source": "architecture 5.1",
+      "evidence": "N-POLICY-ORDER.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "GOVERNANCE REJECTION [ordering]: effectiveFrom 2026-08-27T19:47:54Z must be strictly after existing version v3.0 (2026-08-27T20:17:51Z); policy supersession is prospective"
+    },
+    {
+      "tag": "membership",
+      "condition": "submission by a suspended organization",
+      "source": "model 3.5; architecture 5.B",
+      "evidence": "N-MEMBER-SUSPENDED.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "GOVERNANCE REJECTION [membership]: organization \"Warehouse\" is suspended and may not submit evidence"
+    },
+    {
+      "tag": "change control",
+      "condition": "organization admitted by a non-authorised identity",
+      "source": "model 3.5; architecture 5.B",
+      "evidence": "N-MEMBER-NONADMIN.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "GOVERNANCE REJECTION [change control]: AdmitOrganization is restricted to the authority designated by policy v2.0 (Org1MSP); caller is Org2MSP"
+    },
+    {
+      "tag": "change control",
+      "condition": "dispute resolved by a non-authorised identity",
+      "source": "model 3.5; architecture 5.C",
+      "evidence": "N-DISPUTE-NONADMIN.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "GOVERNANCE REJECTION [change control]: ResolveDispute is restricted to the authority designated by policy v2.0 (Org1MSP); caller is Org2MSP"
+    },
+    {
+      "tag": "emergency",
+      "condition": "submission inside a scope frozen by a time-bounded override",
+      "source": "architecture 5.C",
+      "evidence": "N-EMERGENCY.txt",
+      "captured": true,
+      "correctlyTagged": true,
+      "message": "GOVERNANCE REJECTION [emergency]: submission is suspended by emergency EMG-1 (eventType \"Recall\") until 2026-08-27T19:48:06Z"
+    }
+  ],
+  "verdict": {
+    "allChecksDemonstrated": true
+  },
+  "generatedAt": "2026-08-27T19:18:13.573Z"
+}

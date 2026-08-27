@@ -1,0 +1,1 @@
+Error: endorsement failure during invoke. response: status:500 message:"REJECTED [asset]: asset \"LOT-A\" has been fully consumed by a transformation and can no longer be transferred" 
