@@ -1,1 +1,0 @@
-Error: endorsement failure during invoke. response: status:500 message:"INVARIANT VIOLATION [recall lock]: asset \"LOT-C\" is under recall and may not be an input to a transformation until cleared" 
