@@ -31,12 +31,34 @@ admissible.
 Audit packs are released to roles auditor and authority. Verification without
 disclosure is always permitted.
 
-## 5. Change control
+## 5. Governance kit
 
-Policy versions are anchored by the consortium administrator. Supersession is
-prospective: a version governs only records submitted at or after its
-effectiveFrom timestamp, and a version may not be declared in force before the
-moment it was anchored.
+Membership — organizations must be admitted before they may submit evidence.
+Suspension removes future submission rights prospectively and leaves anchored
+evidence untouched. Admission, suspension and reinstatement are anchored acts
+whose detailed rationale remains off-ledger, referenced by digest.
+
+Change control — policy versions are anchored by the authority designated in
+the version currently in force; the authority for this first version comes from
+the consortium's founding agreement. Supersession is prospective, and a version
+may not be declared in force before the moment it was anchored.
+
+Disputes — a contested reading of anchored evidence is registered as a dispute
+naming the events it concerns and the policy then in force. A dispute never
+withdraws a header; it augments the context in which the header is read.
+
+Emergencies — admissibility may be suspended for a scope of submissions, time
+bounded and linked to a governance decision artifact, so that a temporary
+measure remains reviewable once normal policy resumes.
+
+Audit access — three visibility tiers are distinguished: public lineage
+visibility, consortium-internal evidence visibility, and authority-facing audit
+visibility. Only the latter two may retrieve payload content.
+
+## 5a. Successor authority
+
+The authority permitted to anchor the version that supersedes this one is
+recorded in the registry entry for this version.
 
 ## 6. Machine-readable parameters
 
@@ -46,5 +68,5 @@ that the parameters held in the governance registry are the parameters stated
 in this text.
 
 ```json
-{"quantityTolerance":0.5,"verifyRequiresDistinctActor":false,"recallBlocksTransform":true}
+{"quantityTolerance":0.5,"verifyRequiresDistinctActor":false,"recallBlocksTransform":true,"enforceMembership":true,"maxEventTimeDivergenceHours":0}
 ```

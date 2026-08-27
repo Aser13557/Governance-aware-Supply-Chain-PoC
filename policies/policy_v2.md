@@ -11,6 +11,9 @@ C2 Conservation tolerance — the permitted imbalance between transformation
    inputs and outputs is tightened from 0.5 to 0.25 units.
 C3 Transfer notice — unchanged from v1.0: Transfer events must name the
    receiving custodian explicitly.
+C4 Timeliness — the operational event time carried by a submission may not
+   diverge from its submission time by more than 8760 hours. Divergence beyond
+   that limit makes a record inadmissible.
 
 ## 1-5
 
@@ -28,5 +31,5 @@ recoverable from the artifact whose hash is bound.
 ## 6. Machine-readable parameters
 
 ```json
-{"quantityTolerance":0.25,"verifyRequiresDistinctActor":true,"recallBlocksTransform":true}
+{"quantityTolerance":0.25,"verifyRequiresDistinctActor":true,"recallBlocksTransform":true,"enforceMembership":true,"maxEventTimeDivergenceHours":8760}
 ```

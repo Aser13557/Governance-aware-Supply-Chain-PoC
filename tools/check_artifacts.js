@@ -30,6 +30,16 @@ const REQUIRED = [
   ['S3_policy_effect.json', 'policy-driven validation behaviour'],
   ['S3_policy_effect_rejection.txt', 'tolerance rejection under v2.0'],
   ['S3_selfattestation_rejection.txt', 'self-attestation rejection under v2.0'],
+  ['S2_epcis_export.json', 'EPCIS 2.0 export'],
+  ['S2_prov_export.json', 'PROV-O lineage export'],
+  ['S2_interop_check.json', 'interoperability cross-check'],
+  ['S5_membership.json', 'membership registry'],
+  ['S5_disputes.json', 'dispute registry'],
+  ['S5_dispute.json', 'resolved dispute with its cycle time'],
+  ['S5_emergencies.json', 'emergency override registry'],
+  ['S5_disclosure_tiers.json', 'three audit-visibility tiers'],
+  ['S5_trace_metrics_disputed.json', 'dispute cycle time on a disputed lineage'],
+  ['S5_auditpack.json', 'audit pack carrying dispute state'],
   ['S4_validation_surface.json', 'validation surface report'],
   ['S4_validation_surface.md', 'validation surface table'],
   ['replay.json', 'replay console feed'],
@@ -85,6 +95,41 @@ const rec = readJSON('S1_recall_status.json');
 assert(!!rec && rec.recalled === false && !!rec.clearance, 'recall lock was lifted by a recorded governance clearance');
 
 assert(/TAMPER DETECTED/.test(readTxt('S2_tamper.txt')), 'tampered payload failed verification');
+
+const iop = readJSON('S2_interop_check.json');
+assert(!!iop && iop.verdict, 'every anchored event exported to EPCIS and PROV, each carrying its policy reference');
+
+const tiers = readJSON('S5_disclosure_tiers.json');
+assert(!!tiers && tiers.verdict.allTiersBehaveAsSpecified, 'public, consortium and authority visibility tiers behave as specified');
+
+const disp = readJSON('S5_dispute.json');
+assert(!!disp && disp.state === 'resolved' && disp.cycleSeconds >= 0,
+  `dispute resolved and its cycle time recorded (${disp ? disp.cycleSeconds + 's' : '-'})`);
+
+const dm = readJSON('S5_trace_metrics_disputed.json');
+assert(!!dm && dm.disputeCycleReported === true && dm.disputeCycleSeconds >= 0,
+  `dispute cycle time reported on the disputed lineage (${dm ? dm.disputeCycleSeconds + 's' : '-'})`);
+const dpack = readJSON('S5_auditpack.json');
+assert(!!dpack && Array.isArray(dpack.disputes) && dpack.disputes.length > 0,
+  'audit pack carries the dispute state affecting its evidence');
+
+const iopDoc = readJSON('S2_epcis_export.json');
+assert(!!iopDoc && iopDoc.epcisBody.eventList.some((e) => e.type === 'TransformationEvent'),
+  'a transformation is exported as an EPCIS TransformationEvent');
+
+const mem = readJSON('S5_membership.json');
+assert(Array.isArray(mem) && mem.some((m) => m.status === 'suspended'),
+  'membership registry records a suspension');
+assert(Array.isArray(mem) && mem.every((m) => !!m.policyHash),
+  'every membership act is bound to the policy in force');
+
+const emg = readJSON('S5_emergencies.json');
+assert(Array.isArray(emg) && emg.length > 0 && emg.every((e) => !!e.until && !!e.decisionHash),
+  'every emergency override is time-bounded and linked to a decision artifact');
+
+const pols = readJSON('S3_policy_history.json');
+assert(Array.isArray(pols) && pols.every((p) => p.hashAlgorithm && p.nextAuthority),
+  'every policy version records its hash algorithm and its successor authority');
 
 console.log(fail === 0
   ? `\n${g('all artifacts present and all verdicts hold - results/ is citable')}`

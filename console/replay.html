@@ -178,6 +178,7 @@
     <button class="tab" data-s="S2">S2 · audit pack</button>
     <button class="tab" data-s="S3">S3 · policy binding</button>
     <button class="tab" data-s="S4">S4 · validation surface</button>
+    <button class="tab" data-s="S5">S5 · governance kit</button>
   </nav>
   <div class="ctrls">
     <button class="btn" id="play" aria-label="Pause or resume">Pause</button>
@@ -333,7 +334,8 @@ const CLAIMS = {
  S1:'Watch for: <b>identical treatment of four source systems</b>, lineage reconstruction to origin, and two red rejections \u2014 custody continuity, then recall lock.',
  S2:'Watch for: <b>one command \u2192 complete audit pack</b> with per-event policy refs and 4/4 hash verification \u2014 then a deliberate tamper being caught.',
  S3:'Watch for: <b>the spine changing shade</b> when policy v2.0 anchors \u2014 and the same submission being refused afterwards.',
- S4:'Watch for: <b>every admission check</b> producing a rejection that names itself.'
+ S4:'Watch for: <b>every admission check</b> producing a rejection that names itself.',
+ S5:'Watch for: <b>governance acting</b> \u2014 membership, disputes, emergencies and tiered disclosure, each anchored.'
 };
 
 /* ── playback engine ───────────────────────────────────────────────── */
@@ -457,7 +459,7 @@ function loadText(txt,name){
     const j=JSON.parse(txt);
     if(!j.scenarios||!(j.scenarios.S1||j.scenarios.S2||j.scenarios.S3))
       throw new Error('missing "scenarios" with S1/S2/S3');
-    DATA={S1:j.scenarios.S1||[],S2:j.scenarios.S2||[],S3:j.scenarios.S3||[],S4:j.scenarios.S4||[]};
+    DATA={S1:j.scenarios.S1||[],S2:j.scenarios.S2||[],S3:j.scenarios.S3||[],S4:j.scenarios.S4||[],S5:j.scenarios.S5||[]};
     $('#badge').textContent='REAL DATA'; $('#badge').classList.add('real');
     $('#src').textContent=name+(j.generatedAt?' \u00b7 '+j.generatedAt:'');
     start();

@@ -41,12 +41,17 @@ const g = (s) => `\x1b[0;32m${s}\x1b[0m`;
 const r = (s) => `\x1b[0;31m${s}\x1b[0m`;
 
 /* ── audit pack ─────────────────────────────────────────────────────────── */
-async function auditPack(assetID, role) {
+async function auditPack(assetID, role, prefix) {
+  prefix = prefix || 'S2';
   const t0 = Date.now();
   const lineage = ccQuery('GetLineageByAsset', assetID);
   const headers = ordered(lineage).map((n) => ccQuery('GetHeader', n.eventID));
   const metrics = ccQuery('GetTraceMetrics', assetID);
   const recall = ccQuery('GetRecallStatus', assetID);
+  // Dispute state augments the interpretation of anchored evidence without
+  // altering it, so an audit pack must carry it rather than present the
+  // headers as uncontested.
+  const disputes = ccQuery('DisputesForAsset', assetID);
 
   const verification = [];
   for (const h of headers) {
@@ -78,9 +83,16 @@ async function auditPack(assetID, role) {
       queriedEvent: metrics.queriedEvent,
       auditHandoffs: metrics.auditHandoffs,
       pathOrganizations: metrics.pathOrganizations,
-      disputeCycleTime: metrics.disputeCycleReported ? metrics.disputeCycleSeconds : 'not instrumented',
+      disputeCycleTime: metrics.disputeCycleReported ? metrics.disputeCycleSeconds : 'no resolved dispute on this lineage',
     },
     recallStatus: recall,
+    disputes: disputes.map((d) => ({
+      disputeID: d.disputeID, state: d.state, eventIDs: d.eventIDs,
+      openedBy: d.openedBy, openedAt: d.openedAt,
+      policyVersion: d.policyVersion, rationaleHash: d.rationaleHash,
+      outcome: d.outcome || null, resolvedAt: d.resolvedAt || null,
+      cycleSeconds: d.cycleSeconds,
+    })),
     governance: policies.map((p) => ({
       version: p.version, hash: p.hash, effectiveFrom: p.effectiveFrom, params: p.params,
     })),
@@ -93,13 +105,13 @@ async function auditPack(assetID, role) {
   };
   pack.generatedInMs = Date.now() - t0;
 
-  fs.writeFileSync(path.join(RESULTS, 'S2_auditpack.json'), JSON.stringify(pack, null, 2));
-  fs.writeFileSync(path.join(RESULTS, 'S2_generation_time.txt'),
+  fs.writeFileSync(path.join(RESULTS, prefix + '_auditpack.json'), JSON.stringify(pack, null, 2));
+  fs.writeFileSync(path.join(RESULTS, prefix + '_generation_time.txt'),
     `audit pack for ${assetID}: ${pack.generatedInMs} ms (${pack.events.length} events, ` +
     `${pack.payloadVerification.checked} payload verifications)\n`);
-  fs.writeFileSync(path.join(RESULTS, 'S2_verification.txt'),
+  fs.writeFileSync(path.join(RESULTS, prefix + '_verification.txt'),
     verification.map((v) => `${v.eventID}\t${v.payloadHash}\t${v.verified ? 'PASS' : 'FAIL'}`).join('\n') + '\n');
-  fs.writeFileSync(path.join(RESULTS, 'S2_indicators.txt'),
+  fs.writeFileSync(path.join(RESULTS, prefix + '_indicators.txt'),
     [`time-to-trace      : ${pack.indicators.timeToTraceSeconds} s ` +
      `(${pack.indicators.earliestCreate} -> ${pack.indicators.queriedEvent})`,
      `audit hand-offs    : ${pack.indicators.auditHandoffs} ` +
@@ -117,6 +129,7 @@ async function passport(assetID) {
   const lineage = ccQuery('GetLineageByAsset', assetID);
   const state = ccQuery('GetAssetState', assetID);
   const recall = ccQuery('GetRecallStatus', assetID);
+  const disputes = ccQuery('DisputesForAsset', assetID);
   const headers = ordered(lineage).map((n) => ccQuery('GetHeader', n.eventID));
   const last = headers[headers.length - 1];
   const lastTransfer = [...headers].reverse().find((h) => h.eventType === 'Transfer');
@@ -127,6 +140,7 @@ async function passport(assetID) {
     quantity: { remaining: state.quantity, unit: state.unit, consumed: state.consumed },
     recallStatus: recall.recalled ? 'RECALLED' : 'none',
     recallClearance: recall.clearance || null,
+    openDisputes: disputes.filter((d) => d.state === 'open').map((d) => d.disputeID),
     origin: lineage.originCreates,
     lastTransfer: lastTransfer
       ? { eventID: lastTransfer.eventID, at: lastTransfer.timestamp, to: lastTransfer.newCustodian }
@@ -171,7 +185,7 @@ async function tamper(assetID, eventID) {
 (async () => {
   const [cmd, a, b] = process.argv.slice(2);
   try {
-    if (cmd === 'auditpack') await auditPack(a, b || 'authority');
+    if (cmd === 'auditpack') await auditPack(a, b || 'authority', process.argv[5]);
     else if (cmd === 'passport') await passport(a);
     else if (cmd === 'tamper') await tamper(a, b);
     else {

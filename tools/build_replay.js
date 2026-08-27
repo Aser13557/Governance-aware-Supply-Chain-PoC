@@ -144,6 +144,11 @@ if (tam) {
     [(L.find((l) => l.startsWith('after tampering')) || 'verification FAIL').trim(), 'bad'],
     ['tamper detected from anchored evidence alone', 'ok']] });
 }
+const iop = readJSON('S2_interop_check.json');
+if (iop) S2.push({ kind: 'query', label: 'interoperability exports (EPCIS 2.0 and PROV-O)', lines: [
+  `${iop.anchoredEvents} anchored events exported to both vocabularies`,
+  'transformations map to TransformationEvent; lineage links map to PROV derivation relations',
+  'every exported event carries the policy reference under which it was admitted'] });
 S2.push({ kind: 'claim', text: `<b>A regulator-ready bundle, verified without disclosure.</b> Ordered headers, identity attestations, policy references and the model's own indicators${pack ? ' in ' + pack.generatedInMs + ' ms' : ''} - and a silent payload change exposed by the anchored digests.` });
 
 /* ── S3 ─────────────────────────────────────────────────────────────────── */
@@ -172,6 +177,39 @@ if (eff) S3.push({ kind: 'query', label: 'policy-driven validation behaviour', l
   'the deciding parameter came from the registry, not from the submitter'] });
 S3.push({ kind: 'claim', text: '<b>The mechanism, doing work.</b> The rulebook changed and the system behaved differently - an identical submission admitted under one regime and refused under the next - while every record still proves which regime judged it.' });
 
+/* ── S5 · governance kit ────────────────────────────────────────────────── */
+const mem = readJSON('S5_membership.json'), dsp = readJSON('S5_dispute.json');
+const emg = readJSON('S5_emergencies.json'), tiers = readJSON('S5_disclosure_tiers.json');
+const dmet = readJSON('S5_trace_metrics_disputed.json');
+const S5 = [{ kind: 'info', text: 'S5 - the governance kit: membership, disputes, emergency overrides and tiered audit access.' }];
+if (mem) S5.push({ kind: 'query', label: 'MembershipRegistry()', lines: [
+  `${mem.length} organizations on record: ` + mem.map((m) => `${m.org} (${m.status})`).join(', '),
+  'each admission or suspension is anchored and bound to the policy then in force'] });
+const nma = reject('N-MEMBER-NONADMIN', 'Governance', '-', 'Org2MSP'); if (nma) S5.push(nma);
+const nms = reject('N-MEMBER-SUSPENDED', 'Verify', 'LOT-E', 'Warehouse'); if (nms) S5.push(nms);
+if (dsp) {
+  S5.push({ kind: 'gov', act: 'OpenDispute', v: dsp.policyVersion, hash: short(dsp.policyHash),
+    ef: dsp.openedAt, policyUnchanged: true,
+    note: `dispute ${dsp.disputeID} opened over ${dsp.eventIDs.join(', ')} by ${dsp.openedBy}; rationale off-ledger (${short(dsp.rationaleHash)})` });
+  const nda = reject('N-DISPUTE-NONADMIN', 'Governance', '-', 'Org2MSP'); if (nda) S5.push(nda);
+  S5.push({ kind: 'gov', act: 'ResolveDispute', v: dsp.policyVersion, hash: short(dsp.policyHash),
+    ef: dsp.resolvedAt || '', policyUnchanged: true,
+    note: `${dsp.disputeID} resolved after ${dsp.cycleSeconds}s: ${dsp.outcome}; no anchored header was altered` });
+}
+if (dmet) S5.push({ kind: 'query', label: 'GetTraceMetrics after resolution', lines: [
+  `disputes on this lineage: [${(dmet.disputesOnPath || []).join(', ')}]`,
+  `dispute cycle time ${dmet.disputeCycleSeconds}s - the third indicator of the model, now instrumented`] });
+if (emg && emg.length) {
+  const e = emg[0];
+  S5.push({ kind: 'gov', act: 'DeclareEmergency', v: e.policyVersion, hash: short(e.policyHash),
+    ef: e.declaredAt, policyUnchanged: true,
+    note: `${e.emergencyID} suspends ${e.scopeType} "${e.scopeValue}" until ${e.until}; decision artifact ${short(e.decisionHash)}` });
+}
+const nem = reject('N-EMERGENCY', 'Recall', 'LOT-D', 'Retailer'); if (nem) S5.push(nem);
+if (tiers) S5.push({ kind: 'query', label: 'audit access - three visibility tiers', lines:
+  tiers.tiers.map((t) => `${t.tier}: integrity ${t.integrityConfirmed ? 'confirmed' : 'not shown'}, content ${t.payloadDisclosed ? 'disclosed' : 'withheld'}`) });
+S5.push({ kind: 'claim', text: '<b>Governance as an operating system, not a preamble.</b> Membership decides who may submit, disputes augment evidence without rewriting it, emergency overrides are time-bounded and tied to a decision artifact, and disclosure is tiered - each act anchored and bound to the policy in force.' });
+
 /* ── S4 ─────────────────────────────────────────────────────────────────── */
 const surf = readJSON('S4_validation_surface.json');
 const S4 = [{ kind: 'info', text: 'S4 - validation surface: every admission check the chaincode performs, each with the rejection that demonstrates it.' }];
@@ -183,6 +221,6 @@ if (surf) {
 }
 
 const out = { generatedAt: new Date().toISOString(), source: 'Track A prototype run',
-  scenarios: { S1, S2, S3, S4 } };
+  scenarios: { S1, S2, S3, S4, S5 } };
 fs.writeFileSync(path.join(R, 'replay.json'), JSON.stringify(out, null, 2));
-console.log(`   PASS replay feed - S1 ${S1.length} beats, S2 ${S2.length}, S3 ${S3.length}, S4 ${S4.length} -> results/replay.json`);
+console.log(`   PASS replay feed - S1 ${S1.length}, S2 ${S2.length}, S3 ${S3.length}, S4 ${S4.length}, S5 ${S5.length} beats -> results/replay.json`);

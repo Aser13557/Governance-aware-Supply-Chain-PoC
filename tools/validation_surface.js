@@ -31,6 +31,10 @@ const CHECKS = [
   ['change control',         'N-CLEAR-NONADMIN.txt',      'recall cleared by a non-admin organization', 'model 3.5'],
   ['retroactivity',          'N-POLICY-RETRO.txt',        'validity start earlier than the anchoring time', 'architecture 5.1'],
   ['ordering',               'N-POLICY-ORDER.txt',        'validity start at or before a version already scheduled', 'architecture 5.1'],
+  ['membership',             'N-MEMBER-SUSPENDED.txt',    'submission by a suspended organization', 'model 3.5; architecture 5.B'],
+  ['change control',         'N-MEMBER-NONADMIN.txt',     'organization admitted by a non-authorised identity', 'model 3.5; architecture 5.B'],
+  ['change control',         'N-DISPUTE-NONADMIN.txt',    'dispute resolved by a non-authorised identity', 'model 3.5; architecture 5.C'],
+  ['emergency',              'N-EMERGENCY.txt',           'submission inside a scope frozen by a time-bounded override', 'architecture 5.C'],
 ];
 
 const rows = CHECKS.map(([tag, file, condition, source]) => {

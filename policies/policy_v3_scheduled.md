@@ -19,5 +19,5 @@ effect during a demonstration run.
 ## 6. Machine-readable parameters
 
 ```json
-{"quantityTolerance":0.1,"verifyRequiresDistinctActor":true,"recallBlocksTransform":true}
+{"quantityTolerance":0.1,"verifyRequiresDistinctActor":true,"recallBlocksTransform":true,"enforceMembership":true,"maxEventTimeDivergenceHours":8760}
 ```

@@ -15,3 +15,9 @@ c_step "product passport"
 node "${ROOT}/export/export.js" passport LOT-D
 c_step "tamper test"
 node "${ROOT}/export/export.js" tamper LOT-D VD1
+
+c_step "interoperability: the same evidence exported to EPCIS 2.0 and PROV-O"
+# LOT-C is used here rather than LOT-D because its lineage exercises all five
+# verbs, including the transformation that must map to an EPCIS
+# TransformationEvent rather than an ObjectEvent.
+node "${ROOT}/export/interop.js" all LOT-C

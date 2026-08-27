@@ -12,11 +12,11 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-// adminMSP is the consortium-admin identity. Anchoring a policy version and
-// clearing a recall are governance acts restricted to it. In production these
-// would be governed by the consortium's change-control rules; restricting them
-// to a single MSP is a documented instantiation simplification.
-const adminMSP = "Org1MSP"
+// foundingAuthority is the identity designated by the consortium's founding
+// agreement as authorised to anchor the first policy version. Every subsequent
+// version's authority is designated by its predecessor, so the right to change
+// policy is itself an auditable chain rather than a standing configuration.
+const foundingAuthority = "Org1MSP"
 
 // Composite-key object types.
 const (
@@ -25,7 +25,19 @@ const (
 	objPolicy    = "policy"
 	objSucc      = "succ"  // per-event successor index enabling forward tracing
 	objClearance = "clear" // recall clearances
+	objMember    = "member"
+	objDispute   = "dispute"
+	objEmergency = "emerg"
 )
+
+// hashAlgorithm is recorded alongside every anchored digest so that the
+// algorithm can be migrated as cryptographic practice evolves without making
+// historical digests ambiguous.
+const hashAlgorithm = "SHA-256"
+
+// canonicalForm names the canonicalisation applied to a policy artifact before
+// hashing, so that semantically identical artifacts yield identical digests.
+const canonicalForm = "UTF-8, LF line endings, no trailing whitespace"
 
 var (
 	hashRe     = regexp.MustCompile(`^[0-9a-f]{64}$`)
@@ -155,13 +167,33 @@ func activeAt(policies []PolicyVersion, t time.Time) *PolicyVersion {
 // start may not precede the moment of anchoring, so the registry cannot be made
 // to assert retroactively that a regime was in force during a period in which
 // records were admitted under a different one.
-func (c *EvidenceContract) AnchorPolicy(ctx contractapi.TransactionContextInterface, version, hash, effectiveFrom, paramsJSON string) (*PolicyVersion, error) {
+func (c *EvidenceContract) AnchorPolicy(ctx contractapi.TransactionContextInterface, version, hash, effectiveFrom, paramsJSON, nextAuthority string) (*PolicyVersion, error) {
 	msp, err := callerMSP(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if msp != adminMSP {
-		return nil, fmt.Errorf("GOVERNANCE REJECTION [change control]: AnchorPolicy is restricted to the consortium-admin identity (%s); caller is %s", adminMSP, msp)
+
+	// The authority permitted to anchor this version is the one designated by
+	// the version currently in force; for the first version it comes from the
+	// founding agreement. This makes the right to change policy auditable in
+	// the same way the policy itself is.
+	now0, err := txTime(ctx)
+	if err != nil {
+		return nil, err
+	}
+	existing, err := c.allPolicies(ctx)
+	if err != nil {
+		return nil, err
+	}
+	wantAuthority := foundingAuthority
+	if cur := activeAt(existing, now0); cur != nil && strings.TrimSpace(cur.NextAuthority) != "" {
+		wantAuthority = cur.NextAuthority
+	}
+	if msp != wantAuthority {
+		return nil, fmt.Errorf("GOVERNANCE REJECTION [change control]: AnchorPolicy is restricted to the authority designated for the next version (%s); caller is %s", wantAuthority, msp)
+	}
+	if strings.TrimSpace(nextAuthority) == "" {
+		return nil, fmt.Errorf("REJECTED [schema]: a policy version must designate the authority permitted to anchor its successor")
 	}
 
 	hash = strings.ToLower(strings.TrimSpace(hash))
@@ -193,10 +225,7 @@ func (c *EvidenceContract) AnchorPolicy(ctx contractapi.TransactionContextInterf
 		return nil, fmt.Errorf("GOVERNANCE REJECTION [retroactivity]: effectiveFrom %s precedes the anchoring time %s; a policy version may not be declared in force before it was anchored", ef.UTC().Format(time.RFC3339), now.Format(time.RFC3339))
 	}
 
-	pols, err := c.allPolicies(ctx)
-	if err != nil {
-		return nil, err
-	}
+	pols := existing
 	for _, p := range pols {
 		if p.Version == version {
 			return nil, fmt.Errorf("REJECTED [duplicate]: policy version %q is already anchored", version)
@@ -210,8 +239,11 @@ func (c *EvidenceContract) AnchorPolicy(ctx contractapi.TransactionContextInterf
 	pv := PolicyVersion{
 		Version:       version,
 		Hash:          hash,
+		HashAlgorithm: hashAlgorithm,
+		Canonical:     canonicalForm,
 		EffectiveFrom: ef.UTC().Format(time.RFC3339),
 		Params:        params,
+		NextAuthority: strings.TrimSpace(nextAuthority),
 		AnchoredBy:    msp,
 		AnchoredAt:    now.Format(time.RFC3339),
 	}
@@ -346,6 +378,42 @@ func (c *EvidenceContract) CreateHeader(ctx contractapi.TransactionContextInterf
 		return nil, fmt.Errorf("INVARIANT VIOLATION [totality]: no governance policy is active at submission time %s; every accepted header must bind exactly one policy hash", now.Format(time.RFC3339))
 	}
 	pp := act.Params
+
+	// --- membership: governance decides who may submit ---
+	if pp.EnforceMembership {
+		var mem Membership
+		found, err := c.getJSON(ctx, objMember, h.ActorOrg, &mem)
+		if err != nil {
+			return nil, err
+		}
+		if !found {
+			return nil, fmt.Errorf("GOVERNANCE REJECTION [membership]: organization %q is not a recognised consortium member and may not submit evidence", h.ActorOrg)
+		}
+		if mem.Status != "active" {
+			return nil, fmt.Errorf("GOVERNANCE REJECTION [membership]: organization %q is %s and may not submit evidence", h.ActorOrg, mem.Status)
+		}
+	}
+
+	// --- emergency overrides: a time-bounded suspension of admissibility ---
+	if em, err := c.activeEmergencyFor(ctx, &h, now); err != nil {
+		return nil, err
+	} else if em != nil {
+		return nil, fmt.Errorf("GOVERNANCE REJECTION [emergency]: submission is suspended by emergency %s (%s %q) until %s", em.EmergencyID, em.ScopeType, em.ScopeValue, em.Until)
+	}
+
+	// --- event-time divergence, where the policy sets a limit ---
+	if pp.MaxEventTimeDivergenceHours > 0 {
+		et, perr := time.Parse(time.RFC3339, h.Timestamp)
+		if perr == nil {
+			gap := now.Sub(et)
+			if gap < 0 {
+				gap = -gap
+			}
+			if gap > time.Duration(pp.MaxEventTimeDivergenceHours)*time.Hour {
+				return nil, fmt.Errorf("GOVERNANCE REJECTION [event time divergence]: operational event time %s differs from submission time %s by more than the %d hours permitted by policy %s", h.Timestamp, now.Format(time.RFC3339), pp.MaxEventTimeDivergenceHours, act.Version)
+			}
+		}
+	}
 
 	// --- event-type invariants, evaluated under the resolved policy ---
 	newAssets := map[string]AssetState{}
@@ -568,12 +636,13 @@ func (c *EvidenceContract) CreateHeader(ctx contractapi.TransactionContextInterf
 // evidence event, so it is restricted to the consortium-admin identity and
 // recorded as a clearance object bound to the policy in force at the time.
 func (c *EvidenceContract) ClearRecall(ctx contractapi.TransactionContextInterface, assetID, reason string) (*RecallClearance, error) {
-	msp, err := callerMSP(ctx)
+	now, act, err := c.governedNow(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if msp != adminMSP {
-		return nil, fmt.Errorf("GOVERNANCE REJECTION [change control]: ClearRecall is restricted to the consortium-admin identity (%s); caller is %s", adminMSP, msp)
+	msp, err := c.requireAdmin(ctx, act, "ClearRecall")
+	if err != nil {
+		return nil, err
 	}
 	if strings.TrimSpace(reason) == "" {
 		return nil, fmt.Errorf("REJECTED [schema]: a clearance reason is required")
@@ -589,19 +658,6 @@ func (c *EvidenceContract) ClearRecall(ctx contractapi.TransactionContextInterfa
 	}
 	if !a.Recalled {
 		return nil, fmt.Errorf("REJECTED [asset]: asset %q is not under recall", assetID)
-	}
-
-	now, err := txTime(ctx)
-	if err != nil {
-		return nil, err
-	}
-	pols, err := c.allPolicies(ctx)
-	if err != nil {
-		return nil, err
-	}
-	act := activeAt(pols, now)
-	if act == nil {
-		return nil, fmt.Errorf("INVARIANT VIOLATION [totality]: no governance policy is active at %s; a clearance must be governed", now.Format(time.RFC3339))
 	}
 
 	a.Recalled = false
@@ -955,6 +1011,32 @@ func (c *EvidenceContract) GetTraceMetrics(ctx contractapi.TransactionContextInt
 			m.AuditHandoffs++
 		}
 		prevOrg = org
+	}
+
+	// §3.7 dispute cycle time: the interval between opening and resolution,
+	// for disputes touching the evidence on this lineage. Reported only when a
+	// dispute has actually been resolved, so the indicator is never inferred.
+	ids := map[string]bool{}
+	for id := range visited {
+		ids[id] = true
+	}
+	disputes, err := c.disputesForEvents(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	m.DisputesOnPath = []string{}
+	var total int64
+	var resolved int64
+	for _, d := range disputes {
+		m.DisputesOnPath = append(m.DisputesOnPath, d.DisputeID)
+		if d.State == "resolved" && d.CycleSeconds >= 0 {
+			total += d.CycleSeconds
+			resolved++
+		}
+	}
+	if resolved > 0 {
+		m.DisputeCycleSeconds = total / resolved
+		m.DisputeCycleReported = true
 	}
 	return m, nil
 }

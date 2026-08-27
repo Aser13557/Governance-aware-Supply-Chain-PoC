@@ -77,7 +77,7 @@ tools/           binding verification, policy effect, validation surface, replay
 policies/        policy_v1.md, policy_v2.md (the artifacts whose hashes get anchored)
 console/         replay.html
 results/         all generated artifacts
-docs/            Paper 3 DRAFT edits E1-E3
+docs/            Paper 3 DRAFT edits E1-E3; model-level observations
 results-archive/ permanent copies of cited runs (artifacts expire in 90 days)
 ```
 
@@ -107,8 +107,10 @@ start; a validity start undercutting a scheduled version.
 > Fixture note: the model's own walkthrough has the processor transform lots
 > whose custodian is the producer, with no intervening transfer. Custody
 > continuity is defined for transfers only, so the prototype follows the model
-> rather than widening the invariant; the gap is a model-level observation, not
-> a prototype defect.
+> rather than widening the invariant. That and five other points where building
+> the artifact revealed something the specification leaves open are recorded in
+> `docs/model-observations.md`; they are findings for the paper's discussion,
+> not prototype defects.
 
 ## Instantiation choices to state in the paper
 

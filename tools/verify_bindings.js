@@ -62,15 +62,21 @@ const recompute = history.map((p) => {
   const text = exists ? fs.readFileSync(file, 'utf8') : null;
   const digest = exists ? crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') : null;
   const stated = text ? paramsFromText(text) : null;
-  const paramsMatch = !!stated && JSON.stringify(stated) === JSON.stringify({
-    quantityTolerance: p.params.quantityTolerance,
-    verifyRequiresDistinctActor: p.params.verifyRequiresDistinctActor,
-    recallBlocksTransform: p.params.recallBlocksTransform,
-  });
+  // Compare every parameter the artifact declares against the registry, and
+  // every parameter the registry holds against the artifact. Checking a fixed
+  // list of fields would silently pass a registry carrying a parameter the
+  // policy text never declared, which is the case the check exists to catch.
+  const canon = (o) => JSON.stringify(Object.keys(o || {}).sort().map((k) => [k, o[k]]));
+  const paramsMatch = !!stated && canon(stated) === canon(p.params);
+  const paramDiff = !stated ? ['policy text declares no parameters'] :
+    [...new Set([...Object.keys(stated), ...Object.keys(p.params || {})])]
+      .filter((k) => JSON.stringify(stated[k]) !== JSON.stringify((p.params || {})[k]))
+      .map((k) => `${k}: artifact ${JSON.stringify(stated[k])} vs registry ${JSON.stringify((p.params || {})[k])}`);
   return {
     version: p.version, file: rel, anchoredHash: p.hash, recomputedHash: digest,
     matches: digest === p.hash,
-    anchoredParams: p.params, statedParams: stated, paramsMatch,
+    hashAlgorithm: p.hashAlgorithm, canonical: p.canonical, nextAuthority: p.nextAuthority,
+    anchoredParams: p.params, statedParams: stated, paramsMatch, paramDiff,
   };
 });
 
@@ -94,6 +100,6 @@ rows.forEach((x) => console.log(
   `${x.boundPolicyHash.slice(0, 12)}  ${x.bindingCorrect ? g('yes') : r('NO')}`));
 recompute.forEach((x) => console.log(
   `   ${x.version}: hash ${x.matches ? g('reproduces') : r('MISMATCH')} - ` +
-  `parameters ${x.paramsMatch ? g('faithful to the artifact') : r('DIVERGE FROM ARTIFACT')}`));
+  `parameters ${x.paramsMatch ? g('faithful to the artifact') : r('DIVERGE: ' + x.paramDiff.join('; '))}`));
 console.log(`   -> results/S3_table4_bindings.json`);
 if (!out.verdict.allBindingsCorrect || !out.verdict.allHashesReproduce || !out.verdict.allParamsFaithful) process.exit(1);

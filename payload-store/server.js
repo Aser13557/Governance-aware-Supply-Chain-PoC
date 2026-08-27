@@ -18,7 +18,18 @@ const path = require('path');
 const PORT = process.env.PAYLOAD_PORT || 4000;
 const DATA = path.join(__dirname, 'data');
 const INDEX = path.join(DATA, 'index.json');
-const ROLES = ['operator', 'auditor', 'authority'];
+// The architecture distinguishes three visibility tiers rather than one
+// authenticated tier: public lineage visibility, consortium-internal evidence
+// visibility, and authority-facing audit visibility. Payload content is
+// available to the latter two only; the public tier can confirm that a digest
+// resolves and that stored content is unaltered, without seeing it.
+const TIERS = {
+  public:    { payload: false, label: 'public lineage visibility' },
+  operator:  { payload: true,  label: 'consortium-internal evidence visibility' },
+  auditor:   { payload: true,  label: 'consortium-internal evidence visibility' },
+  authority: { payload: true,  label: 'authority-facing audit visibility' },
+};
+const ROLES = Object.keys(TIERS);
 
 fs.mkdirSync(DATA, { recursive: true });
 if (!fs.existsSync(INDEX)) fs.writeFileSync(INDEX, '{}');
@@ -54,7 +65,16 @@ app.get('/payload/:hash', (req, res) => {
   const role = (req.get('X-Role') || '').toLowerCase();
   if (!ROLES.includes(role)) {
     return res.status(403).json({
-      error: `ACCESS DENIED: header X-Role must be one of ${ROLES.join('|')}`,
+      error: `ACCESS DENIED [audit access]: header X-Role must be one of ${ROLES.join('|')}`,
+    });
+  }
+  if (!TIERS[role].payload) {
+    const f = path.join(DATA, req.params.hash + '.json');
+    if (!fs.existsSync(f)) return res.status(404).json({ error: 'payload not found' });
+    const verified = sha256(fs.readFileSync(f)) === req.params.hash;
+    return res.status(403).json({
+      error: `ACCESS DENIED [audit access]: the ${TIERS[role].label} tier may confirm integrity but may not retrieve payload content`,
+      hash: req.params.hash, verified, tier: TIERS[role].label, payload: null,
     });
   }
   const file = path.join(DATA, req.params.hash + '.json');
@@ -68,6 +88,7 @@ app.get('/payload/:hash', (req, res) => {
     recomputed,
     verified,
     role,
+    tier: TIERS[role].label,
     payload: verified ? JSON.parse(bytes.toString()) : null,
     note: verified ? 'integrity confirmed' : 'INTEGRITY FAILURE: stored bytes do not match the anchored digest',
   });

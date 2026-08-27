@@ -199,16 +199,27 @@ policy_params(){
 
 # anchor_policy <version> <policyFile> <effectiveFrom>
 anchor_policy(){
-  local v="$1" f="$2" ef="$3" h params
+  local v="$1" f="$2" ef="$3" next="${4:-Org1MSP}" h params
   h=$(sha_file "$f")
   params=$(policy_params "$f")
   if [ -z "$params" ]; then c_bad "no machine-readable parameters found in $f"; return 1; fi
-  switch_org 1                       # anchoring is admin-only (Org1MSP)
-  cc_invoke AnchorPolicy "$v" "$h" "$ef" "$params" >/dev/null
+  switch_org 1                       # anchoring is restricted to the designated authority
+  cc_invoke AnchorPolicy "$v" "$h" "$ef" "$params" "$next" >/dev/null
   sleep 1
   c_gov "policy $v anchored - sha256 ${h:0:12}... - effectiveFrom $ef - params $params"
   jq -nc --arg v "$v" --arg h "$h" --arg ef "$ef" --arg f "$(basename "$f")" --argjson p "$params" \
     '{version:$v,hash:$h,effectiveFrom:$ef,file:$f,params:$p}' >> "${RESULTS}/policies.ndjson"
+}
+
+# digest of an off-ledger governance rationale. Governance acts reference their
+# rationale by digest; the document itself never goes on-ledger.
+rationale_digest(){ printf '%s' "$1" | sha256sum | cut -d" " -f1; }
+
+# admit_org <name> <rationale text>
+admit_org(){
+  switch_org 1
+  cc_invoke AdmitOrganization "$1" "$(rationale_digest "$2")" >/dev/null
+  sleep 1
 }
 
 # expect_gov_reject <label> <expectedTag> <fn> [args...]

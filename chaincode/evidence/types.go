@@ -84,16 +84,26 @@ type PolicyParams struct {
 	QuantityTolerance           float64 `json:"quantityTolerance"`           // permitted |inputs - outputs| on a Transform
 	VerifyRequiresDistinctActor bool    `json:"verifyRequiresDistinctActor"` // a Verify may not be submitted by the current custodian
 	RecallBlocksTransform       bool    `json:"recallBlocksTransform"`       // a recalled lot may not be an input to a Transform
+	EnforceMembership           bool    `json:"enforceMembership"`           // only admitted, unsuspended organizations may submit
+	MaxEventTimeDivergenceHours int     `json:"maxEventTimeDivergenceHours"` // permitted gap between operational event time and submission time; 0 disables the rule
 }
 
 // PolicyVersion is one entry in the governance registry (architecture §5.1).
 type PolicyVersion struct {
 	Version       string       `json:"version"`
-	Hash          string       `json:"hash"`          // SHA-256 hex over the off-ledger policy text
+	Hash          string       `json:"hash"`          // digest over the canonical form of the policy text
+	HashAlgorithm string       `json:"hashAlgorithm"` // recorded alongside the digest so it can be migrated
+	Canonical     string       `json:"canonical"`     // the canonicalisation applied before hashing
 	EffectiveFrom string       `json:"effectiveFrom"` // RFC3339; strictly increasing, never retroactive
 	Params        PolicyParams `json:"params"`
-	AnchoredBy    string       `json:"anchoredBy"`
-	AnchoredAt    string       `json:"anchoredAt"`
+	// NextAuthority designates the identity permitted to anchor the successor
+	// version. Each version therefore names its own successor's authority,
+	// making the authority to change policy an auditable chain rather than a
+	// standing configuration value. The authority for the first version comes
+	// from the consortium's founding agreement.
+	NextAuthority string `json:"nextAuthority"`
+	AnchoredBy    string `json:"anchoredBy"`
+	AnchoredAt    string `json:"anchoredAt"`
 }
 
 // RecallClearance records the governance act that lifts a recall lock.
@@ -115,6 +125,57 @@ type RecallStatus struct {
 	AssetID   string           `json:"assetID"`
 	Recalled  bool             `json:"recalled"`
 	Clearance *RecallClearance `json:"clearance,omitempty" metadata:"clearance,optional"`
+}
+
+// Membership records an organization's standing in the consortium. Admission,
+// suspension and reinstatement are governance acts: each is anchored with the
+// policy in force, while the detailed rationale stays off-ledger and is
+// referenced by digest only.
+type Membership struct {
+	Org           string `json:"org"`
+	Status        string `json:"status"` // active | suspended
+	RationaleHash string `json:"rationaleHash"`
+	ChangedBy     string `json:"changedBy"`
+	ChangedAt     string `json:"changedAt"`
+	PolicyVersion string `json:"policyVersion"`
+	PolicyHash    string `json:"policyHash"`
+}
+
+// Dispute augments the interpretation of anchored evidence without altering
+// it. Opening a dispute registers the evidence identifiers it concerns, the
+// policy reference in force, and a state marker that export and query
+// behaviour take into account.
+type Dispute struct {
+	DisputeID      string   `json:"disputeID"`
+	EventIDs       []string `json:"eventIDs"`
+	State          string   `json:"state"` // open | resolved
+	OpenedBy       string   `json:"openedBy"`
+	OpenedAt       string   `json:"openedAt"`
+	RationaleHash  string   `json:"rationaleHash"`
+	PolicyVersion  string   `json:"policyVersion"`
+	PolicyHash     string   `json:"policyHash"`
+	Outcome        string   `json:"outcome,omitempty" metadata:"outcome,optional"`
+	ResolutionHash string   `json:"resolutionHash,omitempty" metadata:"resolutionHash,optional"`
+	ResolvedBy     string   `json:"resolvedBy,omitempty" metadata:"resolvedBy,optional"`
+	ResolvedAt     string   `json:"resolvedAt,omitempty" metadata:"resolvedAt,optional"`
+	CycleSeconds   int64    `json:"cycleSeconds"` // -1 while open
+}
+
+// Emergency is a time-bounded override of normal admissibility, linked to a
+// governance decision artifact. It suspends submissions matching its scope
+// until it expires or is lifted, and remains reviewable afterwards.
+type Emergency struct {
+	EmergencyID  string `json:"emergencyID"`
+	ScopeType    string `json:"scopeType"`  // eventType | assetPrefix
+	ScopeValue   string `json:"scopeValue"`
+	Until        string `json:"until"`      // RFC3339; the override is time-bounded by construction
+	DecisionHash string `json:"decisionHash"`
+	State        string `json:"state"`      // active | lifted
+	DeclaredBy   string `json:"declaredBy"`
+	DeclaredAt   string `json:"declaredAt"`
+	LiftedAt     string `json:"liftedAt,omitempty" metadata:"liftedAt,optional"`
+	PolicyVersion string `json:"policyVersion"`
+	PolicyHash    string `json:"policyHash"`
 }
 
 // LineageNode / LineageEdge / LineageGraph form the DAG returned by
@@ -168,6 +229,7 @@ type TraceMetrics struct {
 	PathOrganizations    []string `json:"pathOrganizations"` // organizations in path order
 	QueriedEventRule     string   `json:"queriedEventRule"`  // how the queried event was selected
 	PathRule             string   `json:"pathRule"`          // how the minimal path was chosen
-	DisputeCycleSeconds  int64    `json:"disputeCycleSeconds"`
+	DisputeCycleSeconds  int64    `json:"disputeCycleSeconds"`  // §3.7 dispute cycle time, -1 when none resolved
 	DisputeCycleReported bool     `json:"disputeCycleReported"`
+	DisputesOnPath       []string `json:"disputesOnPath"`
 }

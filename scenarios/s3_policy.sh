@@ -16,7 +16,7 @@ c_ok "accepted under v1.0"
 
 c_step "governance change - anchor policy v2.0"
 EF=$(date -u -d '+6 seconds' +%Y-%m-%dT%H:%M:%SZ)
-anchor_policy "v2.0" "${ROOT}/policies/policy_v2.md" "$EF"
+anchor_policy "v2.0" "${ROOT}/policies/policy_v2.md" "$EF" "Org1MSP"
 sleep 8
 
 c_step "two records under policy v2.0"

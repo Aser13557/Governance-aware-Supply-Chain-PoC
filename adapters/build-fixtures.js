@@ -230,6 +230,18 @@ neg('N-CONSUMED', {
   timestamp: '2026-07-20T11:10:00Z', predecessorIDs: ['T1'],
 }, { note: 'negative test - transferring a consumed lot' }, 'asset');
 
+// membership: a suspended organization may not submit
+neg('N-MEMBER-SUSPENDED', {
+  eventType: 'Verify', assetID: 'LOT-E', actorOrg: 'Warehouse',
+  timestamp: '2026-07-20T11:20:00Z', predecessorIDs: ['S3-R5'],
+}, { note: 'negative test - submission by a suspended member' }, 'membership');
+
+// emergency: submissions in the frozen scope are suspended
+neg('N-EMERGENCY', {
+  eventType: 'Recall', assetID: 'LOT-D', actorOrg: 'Retailer',
+  timestamp: '2026-07-20T11:24:00Z', predecessorIDs: ['TD2'],
+}, { note: 'negative test - event type frozen by an emergency override' }, 'emergency');
+
 // schema: an event type outside the five-event vocabulary
 neg('N-SCHEMA-TYPE', {
   eventType: 'Inspect', assetID: 'LOT-D', actorOrg: 'Laboratory',

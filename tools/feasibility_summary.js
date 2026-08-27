@@ -15,6 +15,9 @@ const clear = j('S1_recall_status.json');
 const pack = j('S2_auditpack.json'), pass = j('S2_passport.json');
 const t4 = j('S3_table4_bindings.json'), eff = j('S3_policy_effect.json');
 const surf = j('S4_validation_surface.json');
+const iop = j('S2_interop_check.json'), mem = j('S5_membership.json');
+const dsp = j('S5_dispute.json'), emg = j('S5_emergencies.json');
+const tiers = j('S5_disclosure_tiers.json'), dmet = j('S5_trace_metrics_disputed.json');
 const tam = t('S2_tamper.txt');
 
 const md = `# Track A - feasibility summary (generated ${new Date().toISOString()})
@@ -64,6 +67,24 @@ All values observed in a single prototype run.
   ${M(eff && eff.paired.underV2 && eff.paired.underV2.toleranceApplied)}); the deciding parameter was
   resolved from the governance registry, not supplied by the submitter. Under v2.0 an attestation by the
   current custodian was likewise refused.
+- **S2 (interoperability).** The same anchored evidence was exported to EPCIS 2.0 and to PROV-O:
+  ${M(iop && iop.anchoredEvents)} events in both, transformations expressed as TransformationEvent and
+  lineage links as PROV derivation relations, each exported event carrying the policy reference under
+  which it was admitted.
+- **S5 (membership).** ${M(mem && mem.length)} organizations were admitted before any evidence was
+  accepted; a suspension then removed future submission rights prospectively while leaving anchored
+  evidence untouched. Every membership act is anchored and bound to the policy in force, with its
+  rationale referenced by digest only.
+- **S5 (disputes).** A dispute over an anchored event was opened by a consortium member and resolved by
+  the designated authority after ${M(dsp && dsp.cycleSeconds)} s; no anchored header was altered, and the
+  dispute now appears in the audit pack and trace metrics for the affected lineage.
+- **S5 (dispute cycle time).** The third indicator of the model is instrumented:
+  ${M(dmet && dmet.disputeCycleSeconds)} s for the lineage carrying the disputed event.
+- **S5 (emergency overrides).** A time-bounded suspension of a submission category, linked to a
+  governance decision artifact by digest, refused submissions in its scope and was then lifted.
+- **S5 (audit access).** Three visibility tiers behaved as specified: the public tier could confirm
+  integrity without receiving content, the consortium and authority tiers could retrieve it, and an
+  unauthenticated request was refused.
 - **S4 (validation surface).** ${M(surf && surf.demonstrated)} of ${M(surf && surf.totalChecks)} admission
   checks were demonstrated by a rejection carrying that check's own tag.
 - **Totality.** A submission attempted before any policy was anchored was rejected: governance state is a
