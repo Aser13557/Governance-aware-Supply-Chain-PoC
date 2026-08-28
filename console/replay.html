@@ -400,11 +400,24 @@ function expand(b){
   }
   if(b.kind==='submit'||b.kind==='reject'){
     S.push({w:3, run(){ b._e=entry();
-      var gov=(b.type==='Governance');
-      var head = gov
-        ? '\u25b8 governance act \u00b7 '+b.id+' \u00b7 attempted by '+b.actor
-        : '\u25b8 submit \u00b7 '+b.id+' \u00b7 '+b.type+' \u00b7 '+b.asset+' \u00b7 actor '+b.actor+' \u00b7 source '+b.source
-          +(b.preds&&b.preds.length?' \u00b7 preds {'+b.preds.join(', ')+'}':'');
+      // The beat declares what kind of line it is. A check row is not a
+      // submission and has no asset, actor or source system, so it must not be
+      // rendered through the submission template with placeholders in those
+      // positions. Note that "source" means an enterprise source system here;
+      // a check row names the clause that specifies it, which is a different
+      // thing and is labelled differently.
+      var mode=b.mode||(b.type==='Governance'?'governance':'submission');
+      var head;
+      if(mode==='check'){
+        head='\u25b8 check \u00b7 '+b.id+' \u00b7 '+b.condition
+             +(b.spec?' \u00b7 specified in '+b.spec:'');
+      } else if(mode==='governance'){
+        head='\u25b8 governance act \u00b7 '+b.id+' \u00b7 attempted by '+b.actor;
+      } else {
+        head='\u25b8 submit \u00b7 '+b.id+' \u00b7 '+b.type+' \u00b7 '+b.asset+' \u00b7 actor '+b.actor
+             +(b.source?' \u00b7 source '+b.source:'')
+             +(b.preds&&b.preds.length?' \u00b7 preds {'+b.preds.join(', ')+'}':'');
+      }
       line(b._e,'<span class="t">'+beatTime(b)+'</span><span class="hd">'+head+'</span>'); }});
     (b.checks||[]).forEach(c=>S.push({w:1.4, run(){ line(b._e, c[0]+(c[1]==='ok'?' <span class="ok">\u2713</span>':''),'chk'); }}));
     if(b.kind==='reject'){
