@@ -48,6 +48,7 @@ Either path produces the identical `results/` folder.
 | `S3_policy_effect.json` | the same submission decided differently under two regimes |
 | `S3_policy_history.json` | governance registry state |
 | `replay.json` | feed for `console/replay.html` |
+| `render_check.txt` | every line the console will display, verified and archived |
 
 ## What the prototype demonstrates
 
@@ -73,7 +74,7 @@ payload-store/   off-ledger payload custody service
 adapters/        ERP / MES / TMS-WMS / LIMS / retailer adapters + fixtures
 export/          audit pack · passport · tamper test
 scenarios/       s0 totality, anchor_v1, s1 recall, s2 audit, s3 policy, s4 validation, summarize
-tools/           binding verification, policy effect, validation surface, replay feed, summary, artifact gate
+tools/           binding verification, policy effect, validation surface, replay feed, render check, summary, artifact gate
 policies/        policy_v1.md, policy_v2.md (the artifacts whose hashes get anchored)
 console/         replay.html
 results/         all generated artifacts
