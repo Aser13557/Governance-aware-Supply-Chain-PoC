@@ -78,6 +78,9 @@ jobs:
       - name: Assert every required artifact was produced
         run: node tools/check_artifacts.js
 
+      - name: Assert the replay console renders correctly
+        run: node tools/render_check.js --print
+
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
