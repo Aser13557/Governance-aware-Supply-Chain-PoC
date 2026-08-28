@@ -1,0 +1,1 @@
+GOVERNANCE REJECTION [ordering]: effectiveFrom 2026-08-28T18:04:51Z must be strictly after existing version v3.0 (2026-08-28T18:34:48Z); policy supersession is prospective

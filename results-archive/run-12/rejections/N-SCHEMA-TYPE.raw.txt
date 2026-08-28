@@ -1,0 +1,1 @@
+Error: endorsement failure during invoke. response: status:500 message:"REJECTED [schema]: eventType \"Inspect\" is not one of Create|Transform|Transfer|Verify|Recall" 

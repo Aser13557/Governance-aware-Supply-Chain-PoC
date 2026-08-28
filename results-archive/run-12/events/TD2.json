@@ -1,0 +1,17 @@
+{
+  "eventID": "TD2",
+  "eventType": "Transfer",
+  "assetID": "LOT-D",
+  "actorOrg": "Distributor",
+  "timestamp": "2026-07-20T10:20:00Z",
+  "predecessorIDs": [
+    "VD1"
+  ],
+  "payloadHash": "45d21b000fe24e8a1b193b8c3cfb856e420fd5ebc6316409ed24dbf76003865b",
+  "schemaID": "scmt-header-v1",
+  "actorSignature": "fabric-msp:Org2MSP;id:eDUwOTo6Q049b3JnMmFkbWluLE9VPWFkbWluLE89SHlwZXJsZWRnZXIsU1Q9Tm9ydGggQ2Fyb2xpbmEsQz1VUzo6Q049Y2Eub3JnMi5leGFtcGxlLmNvbSxPPW9yZzIuZXhhbXBsZS5jb20sTD1IdXJzbGV5LFNUPUhhbXBzaGlyZSxDPVVL",
+  "newCustodian": "Retailer",
+  "policyHash": "c25384d87edb0ba95fd11173e8ce8c7b4c3d5319346e6ad7655685899102ccbe",
+  "policyVersion": "v1.0",
+  "boundAt": "2026-08-28T17:34:05Z"
+}
