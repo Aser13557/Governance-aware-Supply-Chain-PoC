@@ -86,8 +86,8 @@ function checksFor(h) {
 const submit = (id) => {
   const h = ev(id); if (!h) return null;
   return {
-    kind: 'submit', id, type: h.eventType, asset: h.assetID, actor: h.actorOrg,
-    source: SOURCE[id] || '-', preds: h.predecessorIDs || [], checks: checksFor(h),
+    kind: 'submit', mode: 'submission', id, type: h.eventType, asset: h.assetID, actor: h.actorOrg,
+    source: SOURCE[id] || null, preds: h.predecessorIDs || [], checks: checksFor(h),
     at: h.boundAt, opAt: h.timestamp,
     bind: h.policyVersion, bindHash: short(h.policyHash), after: AFTER[id] || '',
     fx: FX[id] ? { assets: FX[id] } : undefined,
@@ -101,8 +101,9 @@ const reject = (id, type, asset, actor, file) => {
   if (!err) return null;
   // Several rejection messages state the submission time; use it where present
   // rather than inventing one. Where absent the beat carries no time at all.
-  return { kind: 'reject', id, type, asset, actor, at: timeFrom(err),
-           source: SOURCE[id] || '-', checks: [['schema', 'ok']], err };
+  return { kind: 'reject', mode: type === 'Governance' ? 'governance' : 'submission',
+           id, type, asset, actor, at: timeFrom(err),
+           source: SOURCE[id] || null, checks: [['schema', 'ok']], err };
 };
 
 const policies = (() => {
@@ -119,8 +120,8 @@ const govBeat = (v, note) => {
 /* ── S1 ─────────────────────────────────────────────────────────────────── */
 const S1 = [{ kind: 'info', text: 'S1 - recall investigation, lot LOT-C. Four source systems, one validation path.' }];
 const tot = readTxt('S0_totality_rejection.txt');
-if (tot) S1.push({ kind: 'reject', id: 'C1', type: 'Create', asset: 'LOT-A', actor: 'Producer',
-  at: timeFrom(tot), source: 'ERP', checks: [['schema', 'ok']], err: tot });
+if (tot) S1.push({ kind: 'reject', mode: 'submission', id: 'C1', type: 'Create', asset: 'LOT-A',
+  actor: 'Producer', at: timeFrom(tot), source: 'ERP', checks: [['schema', 'ok']], err: tot });
 const g1 = govBeat('v1.0', 'anchored by the consortium admin');
 if (g1) S1.push(g1);
 ['C1', 'C2', 'T1'].forEach((id) => { const b = submit(id); if (b) S1.push(b); });
@@ -248,9 +249,10 @@ S5.push({ kind: 'claim', text: '<b>Governance as an operating system, not a prea
 const surf = readJSON('S4_validation_surface.json');
 const S4 = [{ kind: 'info', text: 'S4 - validation surface: every admission check the chaincode performs, each with the rejection that demonstrates it.' }];
 if (surf) {
-  surf.rows.forEach((x) => S4.push({ kind: 'reject', id: x.evidence.replace(/\.txt$/, ''),
-    type: x.condition, asset: '-', actor: '-', source: x.source, at: timeFrom(x.message),
-    checks: [['reached this check', 'ok']], err: x.message || `[${x.tag}] NOT CAPTURED` }));
+  surf.rows.forEach((x) => S4.push({ kind: 'reject', mode: 'check',
+    id: x.evidence.replace(/\.txt$/, ''), condition: x.condition, spec: x.source,
+    at: timeFrom(x.message), checks: [['reached this check', 'ok']],
+    err: x.message || `[${x.tag}] NOT CAPTURED` }));
   S4.push({ kind: 'claim', text: `<b>Nothing claimed but undemonstrated.</b> ${surf.demonstrated} of ${surf.totalChecks} admission checks produced a rejection carrying that check's own tag.` });
 }
 

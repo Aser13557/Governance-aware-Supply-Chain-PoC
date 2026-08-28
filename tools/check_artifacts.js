@@ -43,6 +43,7 @@ const REQUIRED = [
   ['S4_validation_surface.json', 'validation surface report'],
   ['S4_validation_surface.md', 'validation surface table'],
   ['replay.json', 'replay console feed'],
+  ['render_check.txt', 'rendered console lines, verified'],
   ['feasibility_summary.md', 'filled sentence stems'],
 ];
 
