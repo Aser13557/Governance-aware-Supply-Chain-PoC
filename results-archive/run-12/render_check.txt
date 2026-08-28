@@ -1,0 +1,97 @@
+
+===== S1 =====
+             S1 - recall investigation, lot LOT-C. Four source systems, one validation path.
+  17:32:56Z  > submit - C1 - Create - LOT-A - actor Producer - source ERP
+  17:33:02Z  GOVERNANCE - AnchorPolicy v1.0 - hash c25384...2ccbe - effectiveFrom 2026-08-28T17:33:02Z
+  17:33:29Z  > submit - C1 - Create - LOT-A - actor Producer - source ERP
+  17:33:32Z  > submit - C2 - Create - LOT-B - actor Producer - source ERP
+  17:33:36Z  > submit - T1 - Transform - LOT-C - actor Processor - source MES - preds {C1, C2}
+             > submit - N-CONSUMED - Transfer - LOT-A - actor Producer
+  17:33:39Z  > submit - TR1 - Transfer - LOT-C - actor Processor - source TMS/WMS - preds {T1}
+  17:33:42Z  > submit - V1 - Verify - LOT-C - actor Laboratory - source LIMS - preds {TR1}
+             > submit - N-CUSTODY - Transfer - LOT-C - actor Retailer
+  17:33:45Z  > submit - R1 - Recall - LOT-C - actor Retailer - source Retailer system - preds {V1}
+             > submit - N-RECALL-TRANSFER - Transfer - LOT-C - actor Carrier
+             > submit - N-RECALL-TRANSFORM - Transform - LOT-Z - actor Carrier
+             > governance act - N-CLEAR-NONADMIN - attempted by Org2MSP
+  17:33:49Z  GOVERNANCE - ClearRecall v1.0 - hash c25384...2ccbe - at 2026-08-28T17:33:49Z
+  17:33:52Z  > submit - TR3 - Transfer - LOT-C - actor Carrier - source TMS/WMS - preds {R1}
+             > GetLineageByAsset("LOT-C")
+             > AffectedDescendants("LOT-A")
+             > GetTraceMetrics("LOT-C")
+             Agnosticism, and invariants that actually bite. Four enterprise systems fed one validation path, while four separate rejections show custody, consumption and the recall lock being enforced - and the lock lifting only on a recorded governance act.
+
+===== S2 =====
+             S2 - regulatory audit of lot LOT-D (four-event lineage, no recall).
+  17:33:55Z  > submit - D1 - Create - LOT-D - actor Producer - source ERP
+  17:33:58Z  > submit - TD1 - Transfer - LOT-D - actor Producer - source TMS - preds {D1}
+  17:34:01Z  > submit - VD1 - Verify - LOT-D - actor Laboratory - source LIMS - preds {TD1}
+  17:34:05Z  > submit - TD2 - Transfer - LOT-D - actor Distributor - source TMS - preds {VD1}
+             > auditPack("LOT-D", role=authority)
+             > indicators (model 3.7)
+             > passportView("LOT-D")
+             > tamper test
+             > interoperability exports (EPCIS 2.0 and PROV-O) - lot LOT-C
+             A regulator-ready bundle, verified without disclosure. Ordered headers, identity attestations, policy references and the model's own indicators in 560 ms - and a silent payload change exposed by the anchored digests.
+
+===== S3 =====
+             S3 - policy update: per-record binding, and the change in validation behaviour that the binding records.
+  17:34:10Z  > submit - S3-R1 - Create - LOT-E - actor Producer - source ERP
+  17:34:13Z  > submit - S3-R2 - Verify - LOT-E - actor Laboratory - source LIMS - preds {S3-R1}
+  17:34:16Z  > submit - S3-R3 - Verify - LOT-E - actor Laboratory - source LIMS - preds {S3-R2}
+  17:34:19Z  > submit - S3-P1 - Create - LOT-F - actor Producer - source ERP
+  17:34:22Z  > submit - S3-P2 - Transform - LOT-G - actor Producer - source MES - preds {S3-P1}
+  17:34:32Z  GOVERNANCE - AnchorPolicy v2.0 - hash 6714a9...441d8 - effectiveFrom 2026-08-28T17:34:32Z
+  17:34:37Z  > submit - S3-R4 - Verify - LOT-E - actor Laboratory - source LIMS - preds {S3-R3}
+  17:34:40Z  > submit - S3-R5 - Transfer - LOT-E - actor Producer - source TMS - preds {S3-R4}
+  17:34:43Z  > submit - S3-P3 - Create - LOT-H - actor Producer - source ERP
+             > submit - S3-P4 - Transform - LOT-I - actor Producer - source MES
+             > submit - N-VERIFY-SELF - Verify - LOT-E - actor Warehouse
+             > per-record binding verification
+             > auditor recomputation
+             > policy-driven validation behaviour
+             The mechanism, doing work. The rulebook changed and the system behaved differently - an identical submission admitted under one regime and refused under the next - while every record still proves which regime judged it.
+
+===== S4 =====
+             S4 - validation surface: every admission check the chaincode performs, each with the rejection that demonstrates it.
+  17:32:56Z  > check - S0_totality_rejection - no governance policy in force at submission - specified in architecture 5.1
+             > check - N-CUSTODY - transfer by a party that is not the current custodian - specified in model 3.6
+             > check - N-RECALL-TRANSFER - transfer of a lot under recall - specified in model 3.6
+             > check - N-RECALL-TRANSFORM - transformation consuming a lot under recall - specified in model 3.6 / 3.8
+             > check - N-QTY-TOLERANCE - imbalance beyond the tolerance in force - specified in model 3.6
+             > check - N-QTY-AVAILABLE - consuming more of a lot than remains - specified in model 3.6
+             > check - N-QTY-UNIT - inputs and outputs in different units - specified in model 3.6
+             > check - S3-P4 - imbalance admissible under v1.0, refused under v2.0 - specified in architecture R4
+             > check - N-VERIFY-DIGEST - malformed attestation digest - specified in model 3.6
+             > check - N-VERIFY-SELF - self-attestation by the current custodian, refused under v2.0 - specified in architecture R4
+             > check - N-CONSUMED - transfer of a fully consumed lot - specified in model 3.6 (derived)
+             > check - N-SCHEMA-TYPE - event type outside the five-event vocabulary - specified in model 3.2
+             > check - N-PREDECESSOR - predecessor that was never anchored - specified in model 3.3
+             > check - N-DUPLICATE - re-anchoring an existing event identifier - specified in immutability
+             > check - N-POLICY-NONADMIN - policy anchored by a non-admin organization - specified in model 3.5
+             > check - N-CLEAR-NONADMIN - recall cleared by a non-admin organization - specified in model 3.5
+             > check - N-POLICY-RETRO - validity start earlier than the anchoring time - specified in architecture 5.1
+             > check - N-POLICY-ORDER - validity start at or before a version already scheduled - specified in architecture 5.1
+             > check - N-MEMBER-SUSPENDED - submission by a suspended organization - specified in model 3.5; architecture 5.B
+             > check - N-MEMBER-NONADMIN - organization admitted by a non-authorised identity - specified in model 3.5; architecture 5.B
+             > check - N-DISPUTE-NONADMIN - dispute resolved by a non-authorised identity - specified in model 3.5; architecture 5.C
+             > check - N-EMERGENCY - submission inside a scope frozen by a time-bounded override - specified in architecture 5.C
+             Nothing claimed but undemonstrated. 22 of 22 admission checks produced a rejection carrying that check's own tag.
+
+===== S5 =====
+             S5 - the governance kit: membership, disputes, emergency overrides and tiered audit access.
+             > MembershipRegistry()
+             > governance act - N-MEMBER-NONADMIN - attempted by Org2MSP
+             > submit - N-MEMBER-SUSPENDED - Verify - LOT-E - actor Warehouse
+  17:34:54Z  GOVERNANCE - OpenDispute v2.0 - hash 6714a9...441d8 - at 2026-08-28T17:34:54Z
+             > governance act - N-DISPUTE-NONADMIN - attempted by Org2MSP
+  17:34:59Z  GOVERNANCE - ResolveDispute v2.0 - hash 6714a9...441d8 - at 2026-08-28T17:34:59Z
+             > GetTraceMetrics after resolution
+  17:35:03Z  GOVERNANCE - DeclareEmergency v2.0 - hash 6714a9...441d8 - at 2026-08-28T17:35:03Z
+             > submit - N-EMERGENCY - Recall - LOT-D - actor Retailer
+             > audit access - three visibility tiers
+             Governance as an operating system, not a preamble. Membership decides who may submit, disputes augment evidence without rewriting it, emergency overrides are time-bounded and tied to a decision artifact, and disclosure is tiered - each act anchored and bound to the policy in force.
+
+rendered 83 beats across 5 scenarios,
+each traced back to the artifact it reports
+[0;32mevery rendered line is well formed, correctly scoped, and matches its source artifact[0m

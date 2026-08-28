@@ -1,0 +1,11 @@
+{
+  "asset": "LOT-C",
+  "anchoredEvents": 7,
+  "epcisEvents": 7,
+  "provActivities": 7,
+  "everyAnchoredEventExported": true,
+  "everyExportedEventCarriesItsPolicyReference": true,
+  "transformationsAsTransformationEvents": true,
+  "generatedAt": "2026-08-28T17:34:10.291Z",
+  "verdict": true
+}

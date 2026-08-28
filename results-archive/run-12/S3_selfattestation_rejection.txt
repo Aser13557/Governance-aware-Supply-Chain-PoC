@@ -1,0 +1,1 @@
+INVARIANT VIOLATION [verification integrity]: policy v2.0 requires an attestation from a party other than the current custodian, but "Warehouse" holds custody of asset "LOT-E"
