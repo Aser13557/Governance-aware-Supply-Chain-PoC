@@ -1,1 +1,0 @@
-REJECTED [asset]: asset "LOT-A" has been fully consumed by a transformation and can no longer be transferred

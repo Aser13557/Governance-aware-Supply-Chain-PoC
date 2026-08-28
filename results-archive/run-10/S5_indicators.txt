@@ -1,9 +1,0 @@
-time-to-trace      : 7200 s (C1 -> TR3)
-audit hand-offs    : 4 (Producer -> Processor -> Processor -> Laboratory -> Retailer -> Carrier)
-dispute cycle time : 5 s
-
-minimal evidence path : C1 -> T1 -> TR1 -> V1 -> R1 -> TR3
-path selection rule   : shortest predecessor chain from the queried event to a Create; earliest Create preferred among equals
-scope headers         : 7 (the lineage carries parallel branches the path does not)
-
-note: time-to-trace derives from operational event times in the demonstration fixtures; the dispute cycle time and the pack generation time are intervals within a single automated run. All three show that the indicators are computed from the evidence, not that they measure operational performance.

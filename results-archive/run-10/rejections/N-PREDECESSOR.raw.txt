@@ -1,1 +1,0 @@
-Error: endorsement failure during invoke. response: status:500 message:"REJECTED [lineage]: predecessor event \"NO-SUCH-EVENT\" does not exist" 

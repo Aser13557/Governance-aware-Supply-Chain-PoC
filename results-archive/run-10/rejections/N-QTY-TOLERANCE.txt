@@ -1,1 +1,0 @@
-INVARIANT VIOLATION [quantity conservation]: inputs total 100.0000 KG, outputs total 90.0000 KG, difference 10.0000 exceeds the tolerance 0.2500 set by policy v2.0
