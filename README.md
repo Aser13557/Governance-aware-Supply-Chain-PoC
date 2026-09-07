@@ -144,3 +144,21 @@ custody via the external store; PDCs noted as an alternative instantiation) ·
 no live enterprise integrations · no dispute/emergency governance domains
 (analytical coverage in Paper 2 Table 5) · no key-management infrastructure ·
 no sector schema extensions.
+
+## Reproducibility (dissertation and Paper 3)
+
+All values reported in the dissertation (Chapter 5) and in Paper 3 derive from **run 12** of the Track A workflow.
+
+| Item | Value |
+|---|---|
+| Workflow | `.github/workflows/track-a.yml` |
+| GitHub Actions run | 33194969585 (28 Aug 2026, 5 m 22 s) |
+| Source code | commit `2687e4aba8b46c097f3781cb36b7d28fe88ea1e2` (`2687e4a`), branch `main` |
+| Run-12 archive | commit `49825fc` |
+| Platform | Hyperledger Fabric 2.5.9; chaincode in Go (`fabric-contract-api-go` v1.2.2); two organizations, one channel, Raft ordering, LevelDB; `peer` CLI clients |
+| Scenarios | S0 totality precondition · S1 recall investigation (7 events, 5 source systems, 4 tagged rejections, clearance as a governance act) · S2 regulatory audit (LOT-D pack, 560 ms, single-byte tamper detection; EPCIS 2.0 / PROV-O export of the S1 lineage) · S3 policy change v1.0 → v2.0 (5 correct bindings, parameter fidelity, identical submission admitted then refused) · S4 validation surface (22 tagged rejections, 10/4/8) · S5 governance kit (all five domains) |
+| Completion gates | (1) every expected artifact exists with its recorded verdict; (2) every replay-console line is reproduced and traced to its artifact |
+
+One automated run in an ephemeral environment: network creation, chaincode build/install/approve/commit, off-ledger payload service, scenarios in sequence, then both gates. Documentation describing earlier drafts (three scenarios, four source systems, a 377 ms audit pack, a 9/4/8 split) has been removed.
+
+The Track B instrument set is under `docs/instrument/` (questionnaire, coverage matrix, codebook). `docs/DISSERTATION_MAP.md` maps each dissertation claim to the artifact that evidences it.
