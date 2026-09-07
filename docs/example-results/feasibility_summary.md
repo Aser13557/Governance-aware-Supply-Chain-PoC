@@ -1,6 +1,6 @@
 # Track A — feasibility summary (generated 2026-08-17T19:52:40.946Z)
 
-Values below are observed in an actual prototype run. Paste into Гл. 5 / Paper 3 §6.4
+Values below are observed in an actual prototype run. Paste into Гл. 5 / "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" §6.4
 and resolve the corresponding [VERIFY] markers.
 
 ## §6.4 sentence stems, filled

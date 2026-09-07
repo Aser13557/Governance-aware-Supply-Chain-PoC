@@ -5,7 +5,7 @@ conceptual model [1] or the reference architecture [2]. None is a prototype
 defect: in each case the prototype follows the source specification, and the
 observation is a candidate refinement rather than a correction.
 
-These belong in the paper's discussion. An implementation that only confirms
+These observations informed the discussion in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" and in Chapter 5 of the dissertation. An implementation that only confirms
 its specification has demonstrated feasibility; one that also identifies where
 the specification is silent has done something the analytical papers could not.
 

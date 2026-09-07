@@ -1,14 +1,15 @@
-# fabric-poc — Track A of Paper 3 (Empirical Validation)
+# Governance-aware Supply Chain PoC — Track A prototype
 
-Proof-of-concept instantiation of the governance-aware evidence infrastructure
-(Paper 2) on Hyperledger Fabric 2.5. Scope is exactly what
-`Paper3_Empirical_Validation_DRAFT.docx` §4.2 and §6.1–6.4 commit to: a
-component exists here only if it produces an artifact cited in the paper /
-Глава 5.
+Proof-of-concept instantiation on Hyperledger Fabric 2.5 of the governance-aware evidence infrastructure for supply chain traceability described in "A Reusable Governance-Aware Evidence Infrastructure for Traceability Applications" (reference architecture) and validated in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" / Chapter 5 of the dissertation. A component exists here only if it produces an artifact cited in those texts; run 12 (see Reproducibility below) is the canonical run from which every reported value derives.
 
-> **Uploading to GitHub? Read `UPLOAD-CHECKLIST.md` first.** The web uploader
-> silently skips dot-folders, so `.github/workflows/track-a.yml` must be created
-> by hand — without it nothing runs and no error is shown.
+## Publications this repository supports
+
+1. Panayotov, A., Lambov, I., Atanasova, M. (2026). *A Governance-Aware, Privacy-Preserving, Event-Driven Conceptual Model for Supply Chain Traceability.* Engineering Proceedings, 150(1), art. 4. https://doi.org/10.3390/engproc2026150004 — the conceptual model.
+2. Panayotov, A., Lambov, I., Atanasova, M. (2026). *A Reusable Governance-Aware Evidence Infrastructure for Traceability Applications.* Proceedings of the 13th IEEE International Conference on Intelligent Systems (IS), Varna, September 2026, in press — the reference architecture instantiated here.
+3. Panayotov, A., Lambov, I., Atanasova, M. (2026). *Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation.* Manuscript — the validation reported from this prototype (Track A) and the expert evaluation (Track B).
+
+The dissertation *Blockchain Smart Contracts and Protocols: a governance-aware evidence infrastructure for supply chain traceability* (Sofia University "St. Kliment Ohridski", FMI, 2026) reports the same run in Chapter 5.
+
 
 ## How to run it
 
@@ -78,7 +79,7 @@ tools/           binding verification, policy effect, validation surface, replay
 policies/        policy_v1.md, policy_v2.md (the artifacts whose hashes get anchored)
 console/         replay.html
 results/         all generated artifacts
-docs/            Paper 3 DRAFT edits E1-E3; model-level observations
+docs/            Track B instrument set · dissertation→artifact map · S4 validation-surface note · model-level observations
 results-archive/ permanent copies of cited runs (artifacts expire in 90 days)
 ```
 
@@ -113,7 +114,7 @@ start; a validity start undercutting a scheduled version.
 > `docs/model-observations.md`; they are findings for the paper's discussion,
 > not prototype defects.
 
-## Instantiation choices to state in the paper
+## Instantiation choices
 
 1. Binding uses the **transaction timestamp**, not the client's event time -
    `timestamp` is operational event time, `boundAt` is governance
@@ -136,18 +137,18 @@ start; a validity start undercutting a scheduled version.
 8. The `peer` CLI replaces the Gateway SDK; transactions are still signed by
    real MSP identities.
 
-## Out of scope (state, don't build)
+## Out of scope
 
 No UI beyond the replay console · no performance benchmarks (one wall-clock
 observation for S2 only) · no Fabric Private Data Collections (off-ledger
 custody via the external store; PDCs noted as an alternative instantiation) ·
 no live enterprise integrations · no dispute/emergency governance domains
-(analytical coverage in Paper 2 Table 5) · no key-management infrastructure ·
+(analytical coverage in "A Reusable Governance-Aware Evidence Infrastructure for Traceability Applications", Table 5; both domains are exercised as governance acts in scenario S5 of run 12) · no key-management infrastructure ·
 no sector schema extensions.
 
-## Reproducibility (dissertation and Paper 3)
+## Reproducibility (dissertation and "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation")
 
-All values reported in the dissertation (Chapter 5) and in Paper 3 derive from **run 12** of the Track A workflow.
+All values reported in the dissertation (Chapter 5) and in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" derive from **run 12** of the Track A workflow.
 
 | Item | Value |
 |---|---|
