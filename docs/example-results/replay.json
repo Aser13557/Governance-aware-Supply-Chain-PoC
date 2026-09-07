@@ -5,7 +5,7 @@
     "S1": [
       {
         "kind": "info",
-        "text": "Scenario S1 — recall investigation, lot LOT-C. Six events, five logical organizations, four source systems."
+        "text": "Scenario S1 — recall investigation, lot LOT-C. Seven events (six before the recall is cleared, one after), five logical organizations, four source systems."
       },
       {
         "kind": "reject",
