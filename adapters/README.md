@@ -5,7 +5,10 @@ record and returns the same normalised `{header, payload}` pair: the ERP
 records are SAP-style with uppercase keys and split date/time fields, the MES
 records a nested job with consumed/produced arrays, the TMS records a shipment
 envelope with epoch seconds and snake_case, the LIMS records sample-test-result
-structures with an accreditation reference.
+structures with an accreditation reference, and the retailer's recall records
+case-management structures carrying a case reference and an opening timestamp.
+Four are enterprise systems; the fifth is the retailer's recall system — the
+"four enterprise source systems and a retailer recall system" of the papers.
 
 The adapters are the only place source-system knowledge exists. The chaincode
 receives normalised headers and never branches on provenance, which is what

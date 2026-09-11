@@ -1,14 +1,14 @@
 # Governance-aware Supply Chain PoC — Track A prototype
 
-Proof-of-concept instantiation on Hyperledger Fabric 2.5 of the governance-aware evidence infrastructure for supply chain traceability described in "A Reusable Governance-Aware Evidence Infrastructure for Traceability Applications" (reference architecture) and validated in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" / Chapter 5 of the dissertation. A component exists here only if it produces an artifact cited in those texts; run 12 (see Reproducibility below) is the canonical run from which every reported value derives.
+Proof-of-concept instantiation on Hyperledger Fabric 2.5 of the governance-aware evidence infrastructure for supply chain traceability described in "A Reusable Governance-Aware Evidence Infrastructure for Traceability Applications" (reference architecture) and validated in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Provenance and Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" / Chapter 5 of the dissertation. A component exists here only if it produces an artifact cited in those texts; run 12 (see Reproducibility below) is the canonical run from which every reported value derives.
 
 ## Publications this repository supports
 
 1. Panayotov, A., Lambov, I., Atanasova, M. (2026). *A Governance-Aware, Privacy-Preserving, Event-Driven Conceptual Model for Supply Chain Traceability.* Engineering Proceedings, 150(1), art. 4. https://doi.org/10.3390/engproc2026150004 — the conceptual model.
 2. Panayotov, A., Lambov, I., Atanasova, M. (2026). *A Reusable Governance-Aware Evidence Infrastructure for Traceability Applications.* Proceedings of the 13th IEEE International Conference on Intelligent Systems (IS), Varna, September 2026, in press — the reference architecture instantiated here.
-3. Panayotov, A., Lambov, I., Atanasova, M. (2026). *Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation.* Manuscript — the validation reported from this prototype (Track A) and the expert evaluation (Track B).
+3. Panayotov, A., Lambov, I., Atanasova, M. (2026). *Empirical Validation of a Governance-Aware Evidence Infrastructure for Provenance and Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation.* Submitted to the International Conference on Museum Big Data (MBD 2026), Sofia, November 2026; under review — the validation reported from this prototype (Track A) and the expert evaluation (Track B).
 
-The dissertation *Blockchain Smart Contracts and Protocols: a governance-aware evidence infrastructure for supply chain traceability* (Sofia University "St. Kliment Ohridski", FMI, 2026) reports the same run in Chapter 5.
+The dissertation *A Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Conceptual Model, Reference Architecture, and Empirical Validation* (Sofia University "St. Kliment Ohridski", FMI, 2026) reports the same run in Chapter 5.
 
 
 ## How to run it
@@ -24,7 +24,7 @@ build, so the stack runs inside WSL2:
 
 ```bash
 bash setup/wsl-bootstrap.sh     # one-time: Go, Node, jq, fabric-samples 2.5
-./run-all.sh                    # network → chaincode → payload store → S1,S2,S3 → results/
+./run-all.sh                    # network → chaincode → payload store → S0–S5 → results/
 ```
 
 Either path produces the identical `results/` folder.
@@ -57,9 +57,9 @@ Either path produces the identical `results/` folder.
 |---|---|---|
 | Five-event vocabulary | model 3.2 | all five types exercised; a sixth is refused |
 | Lineage, backward and forward | model 3.3 | `GetLineageByAsset`, `AffectedDescendants` |
-| Governance kit, change control | model 3.5 | anchoring and recall clearance restricted to the consortium admin |
+| Governance kit, all five domains | model 3.5 | anchoring and recall clearance restricted to the consortium admin (change control); membership, disputes, emergencies and audit access exercised as recorded governance acts in S5 |
 | Four validation invariants | model 3.6 | each enforced at admission and each demonstrated by a tagged rejection |
-| KPI instrumentation | model 3.7 | time-to-trace and audit hand-offs computed in the chaincode; dispute cycle time reported as not instrumented |
+| KPI instrumentation | model 3.7 | all three indicators computed from the evidence — time-to-trace and audit hand-offs in the chaincode (S1, S2), dispute cycle time from the dispute registry (S5) |
 | Passport and audit pack | model 3.8 | both generated, with signatures and policy references |
 | Governance-linked admissibility | architecture R4 | validation parameters resolved from the active policy, never from the submitter |
 | Policy-hash anchoring | architecture 5.1 | totality, immutability, verifiability, plus non-retroactive and ordered validity intervals |
@@ -142,13 +142,12 @@ start; a validity start undercutting a scheduled version.
 No UI beyond the replay console · no performance benchmarks (one wall-clock
 observation for S2 only) · no Fabric Private Data Collections (off-ledger
 custody via the external store; PDCs noted as an alternative instantiation) ·
-no live enterprise integrations · no dispute/emergency governance domains
-(analytical coverage in "A Reusable Governance-Aware Evidence Infrastructure for Traceability Applications", Table 5; both domains are exercised as governance acts in scenario S5 of run 12) · no key-management infrastructure ·
+no live enterprise integrations · no key-management infrastructure ·
 no sector schema extensions.
 
-## Reproducibility (dissertation and "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation")
+## Reproducibility (dissertation and "Empirical Validation of a Governance-Aware Evidence Infrastructure for Provenance and Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation")
 
-All values reported in the dissertation (Chapter 5) and in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" derive from **run 12** of the Track A workflow.
+All values reported in the dissertation (Chapter 5) and in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Provenance and Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" derive from **run 12** of the Track A workflow.
 
 | Item | Value |
 |---|---|
@@ -157,9 +156,9 @@ All values reported in the dissertation (Chapter 5) and in "Empirical Validation
 | Source code | commit `2687e4aba8b46c097f3781cb36b7d28fe88ea1e2` (`2687e4a`), branch `main` |
 | Run-12 archive | commit `49825fc` |
 | Platform | Hyperledger Fabric 2.5.9; chaincode in Go (`fabric-contract-api-go` v1.2.2); two organizations, one channel, Raft ordering, LevelDB; `peer` CLI clients |
-| Scenarios | S0 totality precondition · S1 recall investigation (7 events, 4 source systems, 5 logical organizations, 4 tagged rejections, clearance as a governance act) · S2 regulatory audit (LOT-D pack, 560 ms, single-byte tamper detection; EPCIS 2.0 / PROV-O export of the S1 lineage) · S3 policy change v1.0 → v2.0 (5 correct bindings, parameter fidelity, identical submission admitted then refused) · S4 validation surface (22 tagged rejections, 10/4/8) · S5 governance kit (all five domains) |
+| Scenarios | S0 totality precondition · S1 recall investigation (7 events from 4 enterprise source systems and a retailer recall system through 5 adapters, 5 logical organizations, 4 tagged rejections, clearance as a governance act) · S2 regulatory audit (LOT-D pack, 560 ms, single-byte tamper detection; EPCIS 2.0 / PROV-O export of the S1 lineage) · S3 policy change v1.0 → v2.0 (5 correct bindings, parameter fidelity, identical submission admitted then refused) · S4 validation surface (22 tagged rejections, 10/4/8) · S5 governance kit (all five domains) |
 | Completion gates | (1) every expected artifact exists with its recorded verdict; (2) every replay-console line is reproduced and traced to its artifact |
 
-One automated run in an ephemeral environment: network creation, chaincode build/install/approve/commit, off-ledger payload service, scenarios in sequence, then both gates. Documentation describing earlier drafts (three scenarios, four source systems, a 377 ms audit pack, a 9/4/8 split) has been removed.
+One automated run in an ephemeral environment: network creation, chaincode build/install/approve/commit, off-ledger payload service, scenarios in sequence, then both gates. Documentation describing earlier drafts (three scenarios, a 377 ms audit pack, a 9/4/8 split) has been removed.
 
-The Track B instrument set is under `docs/instrument/` (questionnaire, coverage matrix, codebook). `docs/DISSERTATION_MAP.md` maps each dissertation claim to the artifact that evidences it.
+The Track B instrument set is under `docs/instrument/` (questionnaire as fielded, coverage matrix, codebook recomputed for the final 12-response panel). `docs/DISSERTATION_MAP.md` maps each dissertation claim to the artifact that evidences it.

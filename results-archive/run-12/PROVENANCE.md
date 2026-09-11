@@ -1,6 +1,6 @@
 # Provenance — Track A run 12 (canonical)
 
-The run cited in Глава 5 and in Paper 3. It supersedes runs 1–11, which were
+The run cited in Глава 5 and in the MBD 2026 submission "Empirical Validation of a Governance-Aware Evidence Infrastructure for Provenance and Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation". It supersedes runs 1–11, which were
 produced by earlier versions of the prototype and must not be cited.
 
 ```
@@ -38,7 +38,7 @@ and the scenario suite in order.
 | Scenario | Demonstrates |
 |---|---|
 | S0 | totality — with no policy anchored, submission is refused |
-| S1 | four source systems through one validation path; custody, consumption and recall-lock rejections; lineage, derived lots, indicators; a recall lifted only by a recorded governance act, after which transfer resumes |
+| S1 | four enterprise source systems and a retailer recall system through one validation path; custody, consumption and recall-lock rejections; lineage, derived lots, indicators; a recall lifted only by a recorded governance act, after which transfer resumes |
 | S2 | audit pack with identity attestations, policy references and indicators; passport; tamper detection; the same evidence exported to EPCIS 2.0 and PROV-O |
 | S3 | per-record binding across a policy change, and the change of validation behaviour that binding records |
 | S4 | the validation surface: 22 admission checks, each with a rejection carrying that check's own tag |
