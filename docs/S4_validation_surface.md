@@ -6,4 +6,4 @@ Two checks present in the chaincode are **not exercised by a rejection in run 12
 
 The ordering condition is exercised by anchoring policy v3.0, scheduled to take effect after the run and never in force during it, and then refusing a version whose validity start falls at or before it.
 
-Raw peer output is archived beside each parsed message. Corresponds to dissertation §5.11 / Table 5.7 and, in the MBD 2026 submission, §V-D / Table II.
+Raw peer output is archived beside each parsed message. The full table — one row per check, with the rejection that demonstrates it — is archived in `results-archive/run-12/S4_validation_surface.md`. The crosswalk from repository artifacts to dissertation chapters and paper sections is kept in one place, `docs/DISSERTATION_MAP.md`.
