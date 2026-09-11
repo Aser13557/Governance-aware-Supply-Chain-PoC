@@ -1,7 +1,0 @@
-tamper test — asset LOT-D, event VD1
-anchored digest   : 6e6f63a6ac83164a6a3af60065e482a6d97cd9f58f6588536d6fd1a1c9f48571
-before tampering  : recomputed 6e6f63a6ac83164a6a3af60065e482a6d97cd9f58f6588536d6fd1a1c9f48571 · verified true
-modification      : one byte appended inside the stored attestation payload
-after tampering   : recomputed 770a4dc9d93b22b8e0d3aa975786c4264eb29433dfeb8f1b7b6ac0fcd56c084a · verified false
-result            : TAMPER DETECTED from anchored evidence alone ✓
-ledger header     : unchanged (headers are immutable; only off-ledger bytes were altered)

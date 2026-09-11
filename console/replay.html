@@ -7,7 +7,7 @@
 <!--
   fabric-poc / console/replay.html
   ─────────────────────────────────────────────────────────────────────────
-  Replays the Track A scenarios ("Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation") as an animated admission-pipeline
+  Replays the Track A scenarios ("Empirical Validation of a Governance-Aware Evidence Infrastructure for Provenance and Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation") as an animated admission-pipeline
   log: submit → checks → policy binding → anchored. Ships with embedded DEMO
   data matching the canonical fixtures exactly (README §fixtures). Drop a
   real results/replay.json onto the footer bar to replace the demo stream.
@@ -171,7 +171,7 @@
 <header>
   <div class="brand">
     <h1>Evidence Layer · Replay Console</h1>
-    <small>governance-aware admission pipeline — Track A · "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation"</small>
+    <small>governance-aware admission pipeline — Track A · "Empirical Validation of a Governance-Aware Evidence Infrastructure for Provenance and Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation"</small>
   </div>
   <nav class="tabs" aria-label="Scenarios">
     <button class="tab on" data-s="S1">S1 · recall</button>
@@ -316,7 +316,7 @@ S3:[
  {kind:'submit', id:'S3-R5', type:'Transfer', asset:'LOT-E', actor:'Producer', source:'TMS', preds:['S3-R4'],
   checks:[['custody continuity \u2713 submitter = current custodian (Producer)','ok']],
   bind:'v2.0', after:'custody \u2192 Warehouse', fx:{asset:['LOT-E','Warehouse',false]}},
- {kind:'query', label:'per-record binding verification (Table IV)',
+ {kind:'query', label:'per-record binding verification (Table I of the MBD 2026 submission; Table 5.x in the dissertation)',
   lines:['S3-R1 \u00b7 boundAt 09:07:11Z \u00b7 v1.0 \u00b7 '+H.pol1+' \u00b7 correct \u2713',
          'S3-R2 \u00b7 boundAt 09:08:36Z \u00b7 v1.0 \u00b7 '+H.pol1+' \u00b7 correct \u2713',
          'S3-R3 \u00b7 boundAt 09:10:02Z \u00b7 v1.0 \u00b7 '+H.pol1+' \u00b7 correct \u2713',

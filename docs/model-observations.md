@@ -5,7 +5,7 @@ conceptual model [1] or the reference architecture [2]. None is a prototype
 defect: in each case the prototype follows the source specification, and the
 observation is a candidate refinement rather than a correction.
 
-These observations informed the discussion in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Supply Chain Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" and in Chapter 5 of the dissertation. An implementation that only confirms
+These observations informed the discussion in "Empirical Validation of a Governance-Aware Evidence Infrastructure for Provenance and Traceability: Prototype Demonstration and Multi-Stakeholder Expert Evaluation" and in Chapter 5 of the dissertation. An implementation that only confirms
 its specification has demonstrated feasibility; one that also identifies where
 the specification is silent has done something the analytical papers could not.
 
@@ -87,17 +87,21 @@ lock, but the model does not connect the two.
 
 ---
 
-## 5. Dispute cycle time cannot be instrumented from the event vocabulary
+## 5. Dispute cycle time cannot be instrumented from the event vocabulary alone
 
 **Model.** §3.7 defines three indicators, the third being the interval between
 a dispute being opened and resolved.
 
 **Consequence.** Opening and resolving a dispute are not expressible in the
-five-verb vocabulary, so the indicator has no data to compute from. The
-prototype reports it explicitly as not instrumented rather than omitting it.
+five-verb vocabulary, so the indicator has no evidence event to compute from.
+The prototype therefore records them as governance acts in the dispute
+registry and computes the indicator from the recorded open and resolve
+timestamps (run 12, scenario S5: 5 s). Earlier runs reported the indicator as
+not instrumented.
 
 **Observation.** Two of the three indicators are derivable from lineage; the
-third presupposes a governance domain the event model does not represent.
+third presupposes the governance kit, not the event model — which is where
+the prototype places it.
 
 ---
 

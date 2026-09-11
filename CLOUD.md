@@ -26,7 +26,7 @@ repositories on the free plan get 2,000 Linux minutes per month — roughly 130
 runs of this workflow.
 
 What the workflow does: installs Fabric 2.5, compiles the chaincode, brings up
-the test network, runs S0–S3 with the negative tests, verifies every artifact
+the test network, runs S0–S5 with the negative tests, verifies every artifact
 exists **and** that its verdicts hold (`tools/check_artifacts.js`), then tears
 the network down. If any artifact is missing or any verdict is false, the run
 fails red — a partial run can never be mistaken for a complete one.
