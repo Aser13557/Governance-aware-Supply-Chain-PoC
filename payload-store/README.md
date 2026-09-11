@@ -10,3 +10,14 @@ retrieval" — the role gate MUST actually be enforced or that sentence is false
 
 Store payloads as raw bytes exactly as hashed (no re-serialization), else
 verification breaks.
+
+## Role header values and the three tiers
+
+`X-Role` accepts `public`, `operator`, `auditor` and `authority`. They map onto the
+architecture's three visibility tiers as follows: `public` → public lineage
+visibility (integrity confirmation only, no content); `operator` and `auditor` →
+consortium-internal evidence visibility (content); `authority` → authority-facing
+audit visibility (content). Run 12 exercised `public`, `operator`, `authority` and an
+unauthenticated request (`S5_disclosure_tiers.json`); `auditor` is an alias of the
+consortium-internal tier and was not separately exercised. `GET /verify/:hash` is
+tier-independent and returns no content; audit-pack assembly uses it.

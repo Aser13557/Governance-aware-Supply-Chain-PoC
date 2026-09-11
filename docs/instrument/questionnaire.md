@@ -2,6 +2,17 @@
 
 Reconstructed verbatim from the deployed Google Form ("Expert Evaluation Questionnaire — Supply Chain Traceability Design") and the response export. This is the instrument the 12 respondents answered (29 Aug – 10 Sep 2026). It supersedes the earlier design-stage rendering that was exported from the dissertation appendix: the Likert block is unchanged, but the open questions (C1–C4), the scenario item (D1) and the role options differ from what was fielded. Приложение А of the dissertation must be the Bulgarian translation of *this* text.
 
+**Panel composition as analysed (12 responses, 29 Aug – 10 Sep 2026).** Group assignment follows the
+role item A1: a response selecting "Academic researcher" is academic (3); a response selecting
+"Regulatory, compliance, or audit professional" is regulatory/compliance (2 — one of them also selected
+the architect/engineer role and is counted once, in the regulatory group); a response selecting
+"IT / blockchain architect or engineer" is architect/engineer (7 — this count includes one respondent who
+chose "Other" and wrote "desktop software engineer"). Free-text additions alongside a selected role
+("Automotive embedded systems", "Project Manager") did not change the assignment. No respondent selected
+"Supply chain operations professional". Eleven respondents reported eight or more years of experience;
+six had worked on a traceability, recall, audit or compliance project. The two optional contact fields
+are empty in the export.
+
 **Item count convention.** 26 substantive items in four blocks: A1–A5 (5), B1–B16 (16), C1–C4 (4), D1 (1). Not counted: the consent item A0, the conditional follow-up to A5, and the two optional contact fields (name, e-mail) for a follow-up interview. Dimension order in the form is D1, D2, D3, D6, D4, D5, D7, D8 — map by item text, never by position. Scale: 1 = strongly disagree … 5 = strongly agree; "N/A – outside my expertise" is excluded from the denominator.
 
 ## Information page (verbatim)

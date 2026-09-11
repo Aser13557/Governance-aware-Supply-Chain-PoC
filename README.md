@@ -151,7 +151,7 @@ All values reported in the dissertation (Chapter 5) and in "Empirical Validation
 
 | Item | Value |
 |---|---|
-| Workflow | `.github/workflows/track-a.yml` |
+| Workflow | `.github/workflows/track-a.yml` (its job label still reads "scenarios S0–S3"; the label predates S4/S5 and all six scenarios ran — see `run.log` and the note in `results-archive/run-12/PROVENANCE.md`) |
 | GitHub Actions run | 33194969585 (28 Aug 2026, 5 m 22 s) |
 | Source code | commit `2687e4aba8b46c097f3781cb36b7d28fe88ea1e2` (`2687e4a`), branch `main` |
 | Run-12 archive | commit `49825fc` |

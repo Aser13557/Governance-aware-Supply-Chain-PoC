@@ -17,6 +17,20 @@ verdicts     : all artifact checks passed (tools/check_artifacts.js)
                all rendered console lines verified (tools/render_check.js)
 ```
 
+## Two labels a checker will meet
+
+- The workflow file `.github/workflows/track-a.yml` at commit `2687e4a` still
+  carries the job name "Fabric 2.5 · scenarios S0–S3" and a header comment
+  saying "S0–S3". Both predate the addition of S4 and S5. The run executed all
+  six scenarios: `run.log` shows the S0–S4 banners and the S5 replay section,
+  and `S4_validation_surface.json`, `S5_*.json` are its artifacts. The label is
+  left as it is because editing the workflow would trigger a new run and move
+  the cited source commit.
+- `S3_policy_history.json` is written at the end of S3 and therefore lists
+  v1.0 and v2.0 only. The third version, v3.0 (scheduled, never in force), is
+  anchored during S4; it is evidenced by `policies.ndjson` (three entries) and by
+  the ordering rejection `rejections/N-POLICY-ORDER.txt`, which names it.
+
 ## Artifact integrity
 
 Digests reported by GitHub Actions for the two artifacts produced by this run.
