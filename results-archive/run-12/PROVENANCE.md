@@ -17,7 +17,7 @@ verdicts     : all artifact checks passed (tools/check_artifacts.js)
                all rendered console lines verified (tools/render_check.js)
 ```
 
-## Two labels a checker will meet
+## Three labels a checker will meet
 
 - The workflow file `.github/workflows/track-a.yml` at commit `2687e4a` still
   carries the job name "Fabric 2.5 · scenarios S0–S3" and a header comment
@@ -30,6 +30,13 @@ verdicts     : all artifact checks passed (tools/check_artifacts.js)
   v1.0 and v2.0 only. The third version, v3.0 (scheduled, never in force), is
   anchored during S4; it is evidenced by `policies.ndjson` (three entries) and by
   the ordering rejection `rejections/N-POLICY-ORDER.txt`, which names it.
+- `chaincode/evidence/types.go` at commit `2687e4a` still carries a comment on
+  `TraceMetrics` saying that dispute cycle time "is not instrumented because the
+  prototype does not implement the dispute governance domain". The comment
+  predates `governance.go`; the struct's own `disputeCycleSeconds` field,
+  `ResolveDispute`, and `S5_dispute.json` / `S5_trace_metrics_disputed.json`
+  (5 s) show that the indicator is computed. Left as it is for the same reason
+  as the workflow label.
 
 ## Artifact integrity
 

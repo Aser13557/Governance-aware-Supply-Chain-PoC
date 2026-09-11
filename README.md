@@ -76,7 +76,7 @@ adapters/        ERP / MES / TMS-WMS / LIMS / retailer adapters + fixtures
 export/          audit pack · passport · tamper test
 scenarios/       s0 totality, anchor_v1, s1 recall, s2 audit, s3 policy, s4 validation, summarize
 tools/           binding verification, policy effect, validation surface, replay feed, render check, summary, artifact gate
-policies/        policy_v1.md, policy_v2.md (the artifacts whose hashes get anchored)
+policies/        policy_v1.md, policy_v2.md, policy_v3_scheduled.md (the artifacts whose hashes get anchored)
 console/         replay.html
 results/         all generated artifacts
 docs/            Track B instrument set · dissertation→artifact map · S4 validation-surface note · model-level observations
@@ -139,8 +139,8 @@ start; a validity start undercutting a scheduled version.
 
 ## Out of scope
 
-No UI beyond the replay console · no performance benchmarks (one wall-clock
-observation for S2 only) · no Fabric Private Data Collections (off-ledger
+No UI beyond the replay console · no performance benchmarks (wall-clock observations for the S2 and S5 packs
+only, neither a benchmark) · no Fabric Private Data Collections (off-ledger
 custody via the external store; PDCs noted as an alternative instantiation) ·
 no live enterprise integrations · no key-management infrastructure ·
 no sector schema extensions.
