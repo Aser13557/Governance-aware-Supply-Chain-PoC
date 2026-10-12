@@ -40,7 +40,7 @@ verdicts     : all artifact checks passed (tools/check_artifacts.js)
 - `chaincode/evidence/contract.go` at commit `2687e4a` carries the same
   predating remark in the doc comment above `GetTraceMetrics` ("Dispute cycle
   time is reported as not instrumented rather than omitted, because the dispute
-  governance domain is out of scope"). Same status, same reason: the code below
+  governance domain is out of scope."). Same status, same reason: the code below
   it and `S5_trace_metrics_disputed.json` show the indicator computed (5 s).
 
 ## Artifact integrity

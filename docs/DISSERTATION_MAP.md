@@ -2,7 +2,9 @@
 
 Canonical run: GitHub Actions run 33194969585 (workflow `track-a.yml`), 28 Aug 2026. Source at commit `2687e4a` (`2687e4aba8b46c097f3781cb36b7d28fe88ea1e2`); run-12 archive at commit `49825fc`.
 
-Mirrors Дисертация_v84 (12 Oct 2026); the tables below are copied from that version verbatim and are to be refreshed whenever the dissertation is reissued.
+Mirrors Дисертация_v86 (12 Oct 2026; Tables 5.1 and 5.8 unchanged since v84); the tables below are copied from that version verbatim and are to be refreshed whenever the dissertation is reissued.
+
+Scope: the dissertation cites this repository for Track A only — source at `2687e4a`, the run-12 archive at `49825fc`, and this map (`docs/DISSERTATION_MAP.md`). The Track B instrument set under `docs/instrument/` is the Paper 3 record (12-response panel); the dissertation reproduces its own instrument, coverage matrix and 13-response codebook in Приложения А, Б and Г and does not cite these files.
 
 ## Таблица 5.1. Оценъчни измерения Д1–Д8, произход в артефактите и покритие по двата канала
 

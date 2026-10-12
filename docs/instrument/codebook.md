@@ -1,6 +1,6 @@
 # Thematic-analysis codebook (Track B) — full form
 
-Recoded for the final 12-response panel (responses 29 Aug – 10 Sep 2026); the earlier version of this file was coded on the first ten responses. This file is the full codebook that the dissertation's Приложение Г summarises (Таблица Г.1 = template, Таблица Г.2 = theme summary). It holds, for every theme, the complete entry required by the template — definition, inclusion criterion, frequency, dimensions, groups, respondent references, representative quote and relation to the quantitative result — plus the respondent key, the coding matrix and the residual (uncoded) segments, so that the attribution of every theme to its source answers can be audited by a co-author against the response export.
+**Scope of this file.** This is the codebook of the 12-response panel (responses 29 Aug – 10 Sep 2026) as analysed for Paper 3 (MBD 2026); the earlier version of this file was coded on the first ten responses. The dissertation reports the *final* 13-response panel — a thirteenth response arrived on 11 Sep 2026, after the analysis date of Paper 3 — and carries its own complete 13-response codebook in Приложение Г (respondent key, rating matrix, coding matrix, theme entries, residual segments, summary); the dissertation does not cite this file. The thirteenth response (Експерт-АКАД-4 in the dissertation's key) is coded there to Т1, Т2, Т3, Т4, Т6 and Т7; it changes no verdict and no theme, and no earlier response was recoded. This file is kept as the Paper 3 record. It holds, for every theme, the complete entry required by the template — definition, inclusion criterion, frequency, dimensions, groups, respondent references, representative quote and relation to the quantitative result — plus the respondent key, the coding matrix and the residual (uncoded) segments, so that the attribution of every theme to its source answers can be audited by a co-author against the response export.
 
 Quotes are verbatim from the English-language responses. Respondents appear only under the anonymised identifiers defined below. No contact data, timestamps or employer information are reproduced.
 
@@ -98,13 +98,13 @@ Frequencies derived from the matrix: Т1 = 4, Т2 = 3, Т3 = 3, Т4 = 4, Т5 = 1
 ### Т4. Управленските провали са институционални, не технически
 
 - **Дефиниция.** Отговори на C3, според които управленският комплект и закотвянето се провалят поради институционални причини — разпад на консорциума, баланс на силите между членовете, недобросъвестно спазване, разминаване между заявена и действителна практика, несъобщени промени в процесите, спадаща дисциплина, неясни отговорности, липса на орган за спорове — а не поради механизма; включва констатацията, че закотвянето доказва кои правила са се прилагали, но не и че са били спазени.
-- **Критерий за включване.** Отговор на C3, който локализира провала в организационното поведение, а не в технологията.
+- **Критерий за включване.** Отговор на C3, който назовава обстоятелство, при което комплектът или закотвянето би се провалило, и го локализира в организационното поведение, а не в технологията.
 - **Честота.** 4 — Експерт-РЕГ-1, Експерт-АКАД-1, Експерт-АКАД-2, Експерт-АКАД-3.
 - **Засегнати измерения.** Д4, Д5.
 - **Разпределение по групи.** Академични (3), регулаторни (1).
 - **Представителен цитат.** Експерт-РЕГ-1 (C3): "It fails when consortium survival, member power balance, or good-faith compliance breaks down — not when the hash math does."
 - **Отношение към количествените данни.** Обяснява частичната присъда по Д4 и Д5 (по 8 от 12) като организационна резерва, не като резерва към механизма.
-- **Граничен случай.** Експерт-АРХ-7 (C3) също локализира трудността в съгласието между различно организирани участници; кодиран към Т5 заедно с останалите му сегменти и не се брои двукратно.
+- **Граничен случай.** Експерт-АРХ-7 (C3) посочва съгласието върху общи бизнес-правила като най-трудната част от консорциумната практика, но не го формулира като обстоятелство на провал — в D1 същият респондент заявява, че при добре организирано централно управление потокът ще работи; затова сегментът е кодиран към Т5, не към Т4.
 
 ### Т5. Съгласието върху общи правила е най-трудното; правната сила на подписите — най-уязвимата
 
@@ -119,7 +119,7 @@ Frequencies derived from the matrix: Т1 = 4, Т2 = 3, Т3 = 3, Т4 = 4, Т5 = 1
 ### Т6. Регулаторна приемливост: одитният пакет — да; паспортът — като резюме; условия за приемане
 
 - **Дефиниция.** Позиции по C4 (и свързан сегмент на C2), които преценяват приемливостта на одитния пакет и на продуктовия паспорт и формулират условия за приемане: одитният пакет — благоприятно, като структурирано и проверимо доказателство; паспортът — като резюме, недостатъчно за значимо разследване; изходните документи остават изискуеми; доверена идентичност, електронни подписи или печати, надеждно времево отбелязване, независима от доставчика проверимост; изисквания на конкретния случай (напр. форензични стандарти); липса на призната от регулатора рамка на доверие (пакетът като указател, а не самодостатъчно доказателство).
-- **Критерий за включване.** Отговор на C4, който формулира преценка за приемливост с условие или квалификация, основана на одитна или регулаторна практика. Изключват се: отговор, който изрично декларира липса на познания за регулаторната практика (Експерт-АРХ-3); едносричен отговор без съдържание (Експерт-АРХ-5: "Yes"); отговорът на Експерт-АРХ-7, кодиран към Т5.
+- **Критерий за включване.** Отговор на C4, който формулира преценка за приемливост с условие или квалификация, основана на одитна или регулаторна практика. Изключват се: отговор, който изрично декларира липса на познания за регулаторната практика (Експерт-АРХ-3); едносричен отговор без условие или обосновка (Експерт-АРХ-5: "Yes"); отговорът на Експерт-АРХ-7, чието условие за приемане е управленско (ясно централно управление на споделения регистър), а не доказателствено — кодиран към Т5.
 - **Честота.** 5 — Експерт-АКАД-1, Експерт-АКАД-2, Експерт-АКАД-3, Експерт-РЕГ-1, Експерт-РЕГ-2.
 - **Засегнати измерения.** Д8; качествена уговорка и към Д3 (5.16.1).
 - **Разпределение по групи.** Академични (3), регулаторни (2); двамата регулаторни респонденти се разминават — Експерт-РЕГ-1: липса на призната рамка на доверие; Експерт-РЕГ-2: приемане при допълнителни изисквания на случая.
@@ -145,6 +145,7 @@ Frequencies derived from the matrix: Т1 = 4, Т2 = 3, Т3 = 3, Т4 = 4, Т5 = 1
 - **Разпределение по групи.** Регулаторни.
 - **Представителен цитат.** Експерт-РЕГ-1 (C2): "Disputes and emergencies are named as areas, not specified — no stated arbitrator, no requirement that a resolution itself become a recorded event, and no limits on emergency lock powers."
 - **Отношение към количествените данни.** Прототипът отговаря операционно в S5: решението на спор е закотвен управленски акт със записан интервал, а извънредната мярка е ограничена със срок и свързана с решение по хеш (5.12); формулирането на арбитъра и на границите остава задача на текста на политиката.
+- **Граничен случай.** Експерт-АКАД-3 (C3) посочва липсата на орган, отговорен за решаването на спорове, и нуждата от определен процес за изключения, спорове и извънредни промени — като обстоятелство на провал в многостранни проекти изобщо, не като критика към спецификацията на артефакта; кодиран към Т4, чиято дефиниция включва липсата на орган за спорове.
 
 ## 5. Residual segments (answered, not coded to any theme)
 
@@ -156,14 +157,14 @@ Frequencies derived from the matrix: Т1 = 4, Т2 = 3, Т3 = 3, Т4 = 4, Т5 = 1
 | Експерт-АРХ-3 | C3 | Няма опит в областта; идеята „keeping track of which policy was active“ би била полезна при одит или спор | Положителна бележка по Д5 без посочен провал |
 | Експерт-АРХ-3 | C4 | Не знае какво регулаторите официално биха приели; одитният пакет изглежда полезен | Изрично декларирана липса на познания за регулаторната практика (вж. Т6, изключения) |
 | Експерт-АРХ-3 | D1 | Потокът му изглежда смислен; няма предложение | Не назовава провал |
-| Експерт-АРХ-5 | C2, C4 | "Governance rules"; "Yes" | Без съдържание |
+| Експерт-АРХ-5 | C2, C4 | "Governance rules"; "Yes" | Само име на категория, без конкретен елемент; едносричен отговор без условие или обосновка |
 | Експерт-АРХ-6 | C1 | "All five are generally fine." | Общо одобрение |
 | Експерт-АРХ-6 | C2 | В централизирана практика create и transport предхождат transform | Бележка за реда на събитията, не за речника |
 | Експерт-АРХ-7 | C1 | Абстрахиране на доказателствата за проследимост от бизнес-артефактите; доказателство за управленска релевантност | Съседен на Т1 (вж. Т1, гранични случаи) |
 | Експерт-АРХ-7 | C2 | Правилата за запазване на количествата и цялост на верификацията се нуждаят от повече детайл | Единично споменаване по Д2; не образува тема |
 | Експерт-АКАД-2 | D1 | Не може да прецени стъпката; подчертава обучението и компетентността на участниците | Единично; не е стъпка от потока |
 | Експерт-АКАД-3 | C1 | Събитиен модел, неизменна одитна история, ролево участие, стандартизирани идентификатори; разделянето оперативни данни / доказателствен слой | Вж. Т1, гранични случаи |
-| Експерт-РЕГ-2 | C1 | "Governance rules" | Без съдържание |
+| Експерт-РЕГ-2 | C1 | "Governance rules" | Само име на категория, без конкретен елемент |
 
 ## 6. Summary (Таблица Г.2 of the dissertation; финален панел, n = 12)
 
@@ -182,4 +183,5 @@ Frequencies derived from the matrix: Т1 = 4, Т2 = 3, Т3 = 3, Т4 = 4, Т5 = 1
 
 - 10-response codebook (the first ten responses, received by 2 Sep 2026): seven themes; Т6 combined output acceptability with the silent incompleteness of the lineage graph.
 - 12-response recoding (after the final response of 10 Sep 2026): Т6 and Т7 separated; Т8 added; frequencies recounted on the full panel. Frequencies are respondent counts, not mention counts.
-- This full form (Oct 2026): per-theme entries, respondent key, coding matrix and residual list added so that the file is the complete codebook the dissertation cites; theme summary table relabelled Таблица Г.2 to match the dissertation (Таблица Г.1 there is the template).
+- This full form (Oct 2026): per-theme entries, respondent key, coding matrix and residual list added so that the file is the complete 12-response codebook behind Paper 3; theme summary table labelled Таблица Г.2 after the dissertation version of that date.
+- 13-response panel (dissertation, Oct 2026): a thirteenth response received on 11 Sep 2026 is included in the dissertation's Приложение Г, which supersedes this file for the dissertation (the dissertation's Таблица Г.6 is the theme summary there; frequencies Т1 = 5, Т2 = 4, Т3 = 4, Т4 = 5, Т5 = 1, Т6 = 6, Т7 = 4, Т8 = 1; verdicts unchanged 5/3/0). This file is not recoded and remains the Paper 3 record.

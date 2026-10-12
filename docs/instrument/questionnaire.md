@@ -1,6 +1,6 @@
 # Expert evaluation questionnaire — Track B instrument, as fielded
 
-Reconstructed verbatim from the deployed Google Form ("Expert Evaluation Questionnaire — Supply Chain Traceability Design") and the response export. This is the instrument the 12 respondents answered (29 Aug – 10 Sep 2026). It supersedes the earlier design-stage rendering that was exported from the dissertation appendix: the Likert block is unchanged, but the open questions (C1–C4), the scenario item (D1) and the role options differ from what was fielded. Приложение А of the dissertation must be the Bulgarian translation of *this* text.
+Reconstructed verbatim from the deployed Google Form ("Expert Evaluation Questionnaire — Supply Chain Traceability Design") and the response export. This is the instrument the respondents answered (12 responses by 10 Sep 2026 as analysed for Paper 3; a thirteenth response on 11 Sep 2026 is included in the dissertation's final panel — see `codebook.md`). It supersedes the earlier design-stage rendering that was exported from the dissertation appendix: the Likert block is unchanged, but the open questions (C1–C4), the scenario item (D1) and the role options differ from what was fielded. Приложение А of the dissertation is the Bulgarian translation of *this* text and additionally reproduces screenshots of the fielded form.
 
 **Panel composition as analysed (12 responses, 29 Aug – 10 Sep 2026).** Group assignment follows the
 role item A1: a response selecting "Academic researcher" is academic (3); a response selecting

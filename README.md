@@ -161,4 +161,4 @@ All values reported in the dissertation (Chapter 5) and in "Empirical Validation
 
 One automated run in an ephemeral environment: network creation, chaincode build/install/approve/commit, off-ledger payload service, scenarios in sequence, then both gates. Documentation describing earlier drafts (three scenarios, a 377 ms audit pack, a 9/4/8 split) has been removed.
 
-The Track B instrument set is under `docs/instrument/` (questionnaire as fielded, coverage matrix, codebook recomputed for the final 12-response panel). `docs/DISSERTATION_MAP.md` maps each dissertation claim to the artifact that evidences it.
+The Track B instrument set under `docs/instrument/` (questionnaire as fielded, coverage matrix, codebook) is the record of the 12-response panel analysed for Paper 3. The dissertation reports the final 13-response panel (one further response, 11 Sep 2026; no verdict changed) and reproduces its instrument, coverage matrix and 13-response codebook in its own appendices; it cites this repository for Track A only (source `2687e4a`, run-12 archive `49825fc`, and `docs/DISSERTATION_MAP.md`, which maps each dissertation claim to the artifact that evidences it).
