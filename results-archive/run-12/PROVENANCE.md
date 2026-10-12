@@ -37,6 +37,11 @@ verdicts     : all artifact checks passed (tools/check_artifacts.js)
   `ResolveDispute`, and `S5_dispute.json` / `S5_trace_metrics_disputed.json`
   (5 s) show that the indicator is computed. Left as it is for the same reason
   as the workflow label.
+- `chaincode/evidence/contract.go` at commit `2687e4a` carries the same
+  predating remark in the doc comment above `GetTraceMetrics` ("Dispute cycle
+  time is reported as not instrumented rather than omitted, because the dispute
+  governance domain is out of scope"). Same status, same reason: the code below
+  it and `S5_trace_metrics_disputed.json` show the indicator computed (5 s).
 
 ## Artifact integrity
 
